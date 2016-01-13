@@ -1,5 +1,9 @@
 Please view this file on the master branch, on stable branches it's out of date.
 
+v 9.0.0 (unreleased)
+  - Fix: Don't downcase project path when using the `name` attribute in api requests
+  - API: Require path to be set when creating projects, with name optional.
+
 v 8.9.0 (unreleased)
   - Fix builds API response not including commit data
   - Fix error when CI job variables key specified but not defined
@@ -941,8 +945,6 @@ v 8.3.5
 
 v 8.3.4
   - Use gitlab-workhorse 0.5.4 (fixes API routing bug)
-  - Fix: Don't downcase project path when using the `name` attribute in api requests (Josh Frye)
-  - API: Require path to be set when creating projects, with name optional.
 
 v 8.3.3
   - Preserve CE behavior with JIRA integration by only calling API if URL is set
