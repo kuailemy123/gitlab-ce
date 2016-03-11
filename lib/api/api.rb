@@ -59,5 +59,6 @@ module API
     mount ::API::Licenses
     mount ::API::Subscriptions
     mount ::API::Gitignores
+    mount ::API::Todos
   end
 end
