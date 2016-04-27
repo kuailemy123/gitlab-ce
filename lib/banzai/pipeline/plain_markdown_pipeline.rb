@@ -3,6 +3,7 @@ module Banzai
     class PlainMarkdownPipeline < BasePipeline
       def self.filters
         FilterArray[
+          Filter::BlockquoteFenceFilter,
           Filter::MarkdownFilter
         ]
       end
