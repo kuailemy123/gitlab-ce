@@ -13,22 +13,31 @@ module Gitlab
       highlight(file_name, blob.data).lines.map!(&:html_safe)
     end
 
+    attr_reader :blob_name
+
     def initialize(blob_name, blob_content, nowrap: true)
+      @blob_name = blob_name
       @formatter = rouge_formatter(nowrap: nowrap)
       @lexer = Rouge::Lexer.guess(filename: blob_name, source: blob_content).new rescue Rouge::Lexers::PlainText
     end
 
     def highlight(text, continue: true, plain: false)
-      if plain
-        @formatter.format(Rouge::Lexers::PlainText.lex(text)).html_safe
-      else
-        @formatter.format(@lexer.lex(text, continue: continue)).html_safe
-      end
+      result = if plain
+                 @formatter.format(Rouge::Lexers::PlainText.lex(text)).html_safe
+               else
+                 @formatter.format(@lexer.lex(text, continue: continue)).html_safe
+               end
+
+      link_dependencies(result)
     rescue
       @formatter.format(Rouge::Lexers::PlainText.lex(text)).html_safe
     end
 
     private
+
+    def link_dependencies(highlighted_text)
+      Gitlab::DependencyLinker.process(blob_name, highlighted_text)
+    end
 
     def rouge_formatter(options = {})
       options = options.reverse_merge(

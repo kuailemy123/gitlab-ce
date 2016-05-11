@@ -8,7 +8,7 @@ describe Gitlab::Highlight, lib: true do
 
   describe '.highlight_lines' do
     let(:lines) do
-      Gitlab::Highlight.highlight_lines(project.repository, commit.id, 'files/ruby/popen.rb')
+      described_class.highlight_lines(project.repository, commit.id, 'files/ruby/popen.rb')
     end
 
     it 'should properly highlight all the lines' do
@@ -18,4 +18,49 @@ describe Gitlab::Highlight, lib: true do
     end
   end
 
+  describe '#link_dependencies' do
+    context 'on Gemfile' do
+      it 'links a gem name in single quotes to its rubygems.org entry' do
+        result = described_class.highlight('Gemfile', <<-EOF.strip_heredoc)
+          gem 'rails',      '4.2.6'
+          gem 'responders', '~> 2.0'
+        EOF
+
+        expect(result).to include("https://rubygems.org/gems/rails")
+        expect(result).to include("https://rubygems.org/gems/responders")
+      end
+
+      it 'works with double quotes' do
+        result = described_class.highlight('Gemfile', <<-EOF.strip_heredoc)
+          gem "rails",      "4.2.6"
+          gem "responders", "~> 2.0"
+        EOF
+
+        expect(result).to include("https://rubygems.org/gems/rails")
+        expect(result).to include("https://rubygems.org/gems/responders")
+      end
+
+      it 'requires a `gem` call before highlighting the first string' do
+        result = described_class.highlight('Gemfile', <<-EOF.strip_heredoc)
+          def darwin_only(require_as)
+            RUBY_PLATFORM.include?('darwin') && require_as
+          end
+
+          def linux_only(require_as)
+            RUBY_PLATFORM.include?('linux') && require_as
+          end
+        EOF
+
+        expect(result).not_to include('rubygems.org')
+      end
+    end
+
+    context 'on an unsupported file' do
+      it 'does not process the file' do
+        expect(Nokogiri::HTML::DocumentFragment).not_to receive(:parse)
+
+        described_class.highlight('Gemfile.lock', '')
+      end
+    end
+  end
 end
