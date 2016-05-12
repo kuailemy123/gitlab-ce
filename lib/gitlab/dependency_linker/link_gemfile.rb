@@ -1,14 +1,14 @@
 module Gitlab
   module DependencyLinker
-    class LinkGemfile
+    class LinkGemfile < LinkBase
       def self.support?(blob_name)
         blob_name == 'Gemfile' || blob_name == 'gems.rb'
       end
 
-      def self.link(_plain_text, highlighted_text)
+      def link
         doc = Nokogiri::HTML::DocumentFragment.parse(highlighted_text)
 
-        doc.xpath('.//span[@class="n"][.="gem"]').each do |gem|
+        doc.xpath(%{.//span[@class="n"][.="#{dependency_method_name}"]}).each do |gem|
           quoted_gem_name_node = gem.next_element
 
           # TODO (rspeicher): Extract guards to method
@@ -26,15 +26,22 @@ module Gitlab
           quote = ERB::Util.html_escape(matches[1])
           name = matches[2]
 
-          link = doc.document
-            .create_element('a', name,
-                            href: "https://rubygems.org/gems/#{name}",
-                            target: '_blank')
+          link = package_link(name)
 
           quoted_gem_name_node.replace("#{quote}#{link}#{quote}")
         end
 
         doc.to_html.html_safe
+      end
+
+      private
+
+      def dependency_method_name
+        "gem"
+      end
+
+      def package_url(name)
+        "https://rubygems.org/gems/#{name}"
       end
     end
   end

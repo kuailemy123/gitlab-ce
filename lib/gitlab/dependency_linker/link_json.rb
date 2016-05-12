@@ -1,17 +1,6 @@
 module Gitlab
   module DependencyLinker
-    class LinkJson
-      def self.link(plain_text, highlighted_text)
-        new(plain_text, highlighted_text).link
-      end
-
-      attr_accessor :plain_text, :highlighted_text
-
-      def initialize(plain_text, highlighted_text)
-        @plain_text = plain_text
-        @highlighted_text = highlighted_text
-      end
-
+    class LinkJson < LinkBase
       def link
         return highlighted_text unless json
 
@@ -54,7 +43,7 @@ module Gitlab
 
         dependencies.each do |name, version|
           next unless valid_package_name?(name)
-          
+
           line_index = plain_lines.index do |line|
             line =~ /"(?<name>#{Regexp.escape(name)})":\s*"#{Regexp.escape(version)}"/
           end
@@ -67,10 +56,7 @@ module Gitlab
           highlighted_line = highlighted_lines[line_index].html_safe
 
           marked_line = Gitlab::StringRangeMarker.new(plain_line, highlighted_line).mark([name_range]) do |text, left:, right:|
-            Nokogiri::HTML::Document.new
-              .create_element('a', text,
-                              href: package_url(name),
-                              target: '_blank').to_html
+            package_link(name)
           end
 
           highlighted_lines[line_index] = marked_line

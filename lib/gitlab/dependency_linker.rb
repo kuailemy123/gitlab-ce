@@ -2,6 +2,7 @@ module Gitlab
   module DependencyLinker
     LINKERS = [
       LinkGemfile,
+      LinkPodfile,
       LinkPackageJson,
       LinkComposerJson
     ]
