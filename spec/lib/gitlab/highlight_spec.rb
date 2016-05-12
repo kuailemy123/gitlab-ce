@@ -18,49 +18,12 @@ describe Gitlab::Highlight, lib: true do
     end
   end
 
-  describe '#link_dependencies' do
-    context 'on Gemfile' do
-      it 'links a gem name in single quotes to its rubygems.org entry' do
-        result = described_class.highlight('Gemfile', <<-EOF.strip_heredoc)
-          gem 'rails',      '4.2.6'
-          gem 'responders', '~> 2.0'
-        EOF
+  describe '#highlight' do
+    it 'links dependencies via DependencyLinker' do
+      expect(Gitlab::DependencyLinker).to receive(:process).
+        with('file.name', 'Contents', anything)
 
-        expect(result).to include("https://rubygems.org/gems/rails")
-        expect(result).to include("https://rubygems.org/gems/responders")
-      end
-
-      it 'works with double quotes' do
-        result = described_class.highlight('Gemfile', <<-EOF.strip_heredoc)
-          gem "rails",      "4.2.6"
-          gem "responders", "~> 2.0"
-        EOF
-
-        expect(result).to include("https://rubygems.org/gems/rails")
-        expect(result).to include("https://rubygems.org/gems/responders")
-      end
-
-      it 'requires a `gem` call before highlighting the first string' do
-        result = described_class.highlight('Gemfile', <<-EOF.strip_heredoc)
-          def darwin_only(require_as)
-            RUBY_PLATFORM.include?('darwin') && require_as
-          end
-
-          def linux_only(require_as)
-            RUBY_PLATFORM.include?('linux') && require_as
-          end
-        EOF
-
-        expect(result).not_to include('rubygems.org')
-      end
-    end
-
-    context 'on an unsupported file' do
-      it 'does not process the file' do
-        expect(Nokogiri::HTML::DocumentFragment).not_to receive(:parse)
-
-        described_class.highlight('Gemfile.lock', '')
-      end
+      described_class.highlight('file.name', 'Contents')
     end
   end
 end

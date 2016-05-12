@@ -8,7 +8,7 @@ module Gitlab
 
         expect(described_class::LinkGemfile).to receive(:link)
 
-        described_class.process(blob_name, '')
+        described_class.process(blob_name, nil, nil)
       end
     end
   end

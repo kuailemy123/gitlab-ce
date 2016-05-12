@@ -2,10 +2,10 @@ module Gitlab
   module DependencyLinker
     class LinkGemfile
       def self.support?(blob_name)
-        blob_name == 'Gemfile'
+        blob_name == 'Gemfile' || blob_name == 'gems.rb'
       end
 
-      def self.link(plain_text, highlighted_text)
+      def self.link(_plain_text, highlighted_text)
         doc = Nokogiri::HTML::DocumentFragment.parse(highlighted_text)
 
         doc.xpath('.//span[@class="n"][.="gem"]').each do |gem|
