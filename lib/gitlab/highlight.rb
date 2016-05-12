@@ -22,8 +22,8 @@ module Gitlab
     end
 
     def highlight(text, continue: true, plain: false)
-      text = highlight_text(text, continue: continue, plain: plain)
-      text = link_dependencies(text, text)
+      highlighted_text = highlight_text(text, continue: continue, plain: plain)
+      highlighted_text = link_dependencies(text, highlighted_text)
     end
 
     private
