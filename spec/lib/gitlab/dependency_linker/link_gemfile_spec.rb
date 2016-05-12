@@ -15,7 +15,7 @@ describe Gitlab::DependencyLinker::LinkGemfile, lib: true do
     end
   end
 
-  describe '.link' do
+  describe '#link' do
     def highlight(blob_name, blob_content)
       Gitlab::Highlight.highlight(blob_name, blob_content)
     end
