@@ -4,9 +4,7 @@ module Gitlab
       def link
         return highlighted_text unless json
 
-        dependency_keys.each do |key|
-          mark_dependencies(key)
-        end
+        mark_dependencies
 
         highlighted_lines.join.html_safe
       end
@@ -21,8 +19,8 @@ module Gitlab
         raise NotImplementedError
       end
 
-      def valid_package_name?(name)
-        true
+      def mark_dependencies
+        raise NotImplementedError
       end
 
       def json
@@ -37,30 +35,21 @@ module Gitlab
         @highlighted_lines ||= highlighted_text.lines
       end
 
-      def mark_dependencies(key)
-        dependencies = json[key]
-        return unless dependencies
+      def mark_dependency_with_regex(regex)
+        line_index = plain_lines.index { |line| line =~ regex }
 
-        dependencies.each do |name, version|
-          next unless valid_package_name?(name)
+        return unless line_index
+        begin_index, end_index = $~.offset(:name)
+        name_range = Range.new(begin_index, end_index - 1)
 
-          line_index = plain_lines.index do |line|
-            line =~ /"(?<name>#{Regexp.escape(name)})":\s*"#{Regexp.escape(version)}"/
-          end
+        plain_line = plain_lines[line_index]
+        highlighted_line = highlighted_lines[line_index].html_safe
 
-          next unless line_index
-          begin_index, end_index = $~.offset(:name)
-          name_range = Range.new(begin_index, end_index - 1)
-
-          plain_line = plain_lines[line_index]
-          highlighted_line = highlighted_lines[line_index].html_safe
-
-          marked_line = Gitlab::StringRangeMarker.new(plain_line, highlighted_line).mark([name_range]) do |text, left:, right:|
-            package_link(name)
-          end
-
-          highlighted_lines[line_index] = marked_line
+        marked_line = Gitlab::StringRangeMarker.new(plain_line, highlighted_line).mark([name_range]) do |text, left:, right:|
+          package_link(text)
         end
+
+        highlighted_lines[line_index] = marked_line
       end
     end
   end

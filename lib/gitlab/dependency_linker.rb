@@ -4,7 +4,8 @@ module Gitlab
       LinkGemfile,
       LinkPodfile,
       LinkPackageJson,
-      LinkComposerJson
+      LinkComposerJson,
+      LinkGodeps
     ]
 
     def self.process(blob_name, plain_text, highlighted_text)
