@@ -20,15 +20,8 @@ describe Gitlab::DependencyLinker::LinkGemfile, lib: true do
       Gitlab::Highlight.highlight(blob_name, blob_content)
     end
 
-    before do
-      # TODO (rspeicher): 'Splain it
-      allow_any_instance_of(Gitlab::Highlight).to receive(:link_dependencies) do |_, *args|
-        args.last
-      end
-    end
-
     it 'links a gem name in single quotes to its rubygems.org entry' do
-      result = described_class.link(nil, highlight('Gemfile', <<-EOF))
+      result = highlight('Gemfile', <<-EOF)
         gem 'rails',      '4.2.6'
         gem 'responders', '~> 2.0'
       EOF
@@ -38,7 +31,7 @@ describe Gitlab::DependencyLinker::LinkGemfile, lib: true do
     end
 
     it 'links a gem name in double quotes to its rubygems.org entry' do
-      result = described_class.link(nil, highlight('gems.rb', <<-EOF))
+      result = highlight('gems.rb', <<-EOF)
         gem "rails",      "4.2.6"
         gem "responders", "~> 2.0"
       EOF
@@ -48,13 +41,9 @@ describe Gitlab::DependencyLinker::LinkGemfile, lib: true do
     end
 
     it 'does not link arbitrary strings' do
-      result = described_class.link(nil, highlight('Gemfile', <<-EOF))
+      result = highlight('Gemfile', <<-EOF)
         def darwin_only(require_as)
           RUBY_PLATFORM.include?('darwin') && require_as
-        end
-
-        def linux_only(require_as)
-          RUBY_PLATFORM.include?('linux') && require_as
         end
       EOF
 
@@ -62,8 +51,7 @@ describe Gitlab::DependencyLinker::LinkGemfile, lib: true do
     end
 
     it 'handles a `gem` call without arguments' do
-      expect { described_class.link(nil, highlight('Gemfile', 'gem')) }.
-        not_to raise_error(NoMethodError)
+      expect { highlight('Gemfile', 'gem') }.not_to raise_error
     end
 
     it 'handles a `gem` call with non-string arguments' do
@@ -72,8 +60,7 @@ describe Gitlab::DependencyLinker::LinkGemfile, lib: true do
         gem name, github: 'rails/rails'
       EOF
 
-      expect { described_class.link(nil, highlight('Gemfile', contents)) }.
-        not_to raise_error
+      expect { highlight('gems.rb', contents) }.not_to raise_error
     end
   end
 end
