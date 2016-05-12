@@ -55,7 +55,7 @@ module Gitlab
       doc = Nokogiri::HTML::DocumentFragment.parse(highlighted_text)
 
       doc.xpath('.//span[@class="line" or starts-with(@class, "c") or starts-with(@class, "s")]/text()').each do |node|
-        content = node.text
+        content = node.to_html
         html = Banzai.render(content, pipeline: :autolink)
 
         next if html == content
