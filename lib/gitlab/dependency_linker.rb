@@ -2,7 +2,8 @@ module Gitlab
   module DependencyLinker
     LINKERS = [
       LinkGemfile,
-      LinkPackageJson
+      LinkPackageJson,
+      LinkComposerJson
     ]
 
     def self.process(blob_name, plain_text, highlighted_text)
