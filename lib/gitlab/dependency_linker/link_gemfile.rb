@@ -11,6 +11,9 @@ module Gitlab
         doc.xpath('.//span[@class="n"][.="gem"]').each do |gem|
           quoted_gem_name_node = gem.next_element
 
+          # TODO (rspeicher): Extract guards to method
+          next unless quoted_gem_name_node
+
           # Only replace strings that follow "gem"
           next unless quoted_gem_name_node.attr('class').start_with?('s')
 

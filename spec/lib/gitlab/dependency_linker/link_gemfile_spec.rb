@@ -60,5 +60,20 @@ describe Gitlab::DependencyLinker::LinkGemfile, lib: true do
 
       expect(result).not_to include('rubygems.org')
     end
+
+    it 'handles a `gem` call without arguments' do
+      expect { described_class.link(nil, highlight('Gemfile', 'gem')) }.
+        not_to raise_error(NoMethodError)
+    end
+
+    it 'handles a `gem` call with non-string arguments' do
+      contents = <<-EOF
+        name = 'rails'
+        gem name, github: 'rails/rails'
+      EOF
+
+      expect { described_class.link(nil, highlight('Gemfile', contents)) }.
+        not_to raise_error
+    end
   end
 end
