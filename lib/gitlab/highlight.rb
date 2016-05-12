@@ -24,6 +24,7 @@ module Gitlab
     def highlight(text, continue: true, plain: false)
       highlighted_text = highlight_text(text, continue: continue, plain: plain)
       highlighted_text = link_dependencies(text, highlighted_text)
+      autolink_strings(highlighted_text)
     end
 
     private
@@ -48,6 +49,21 @@ module Gitlab
 
     def link_dependencies(text, highlighted_text)
       Gitlab::DependencyLinker.process(blob_name, text, highlighted_text)
+    end
+
+    def autolink_strings(highlighted_text)
+      doc = Nokogiri::HTML::DocumentFragment.parse(highlighted_text)
+
+      doc.xpath('.//span[@class="line" or starts-with(@class, "c") or starts-with(@class, "s")]/text()').each do |node|
+        content = node.text
+        html = Banzai.render(content, pipeline: :autolink)
+
+        next if html == content
+
+        node.replace(html)
+      end
+
+      doc.to_html.html_safe
     end
 
     def rouge_formatter(options = {})
