@@ -63,6 +63,9 @@ module Gitlab
         node.replace(html)
       end
 
+      # TODO: For some reason Nokogiri::HTML::DocumentFragment.parse(highlighted_text).to_html
+      # is fine with `"` in text nodes, while in highlighted_text those would be `&quot;`s
+      # This trips some specs up
       doc.to_html.html_safe
     end
 

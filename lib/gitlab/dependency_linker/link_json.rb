@@ -11,10 +11,6 @@ module Gitlab
 
       private
 
-      def dependency_keys
-        raise NotImplementedError
-      end
-
       def package_url(name)
         raise NotImplementedError
       end
