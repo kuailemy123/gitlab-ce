@@ -22,21 +22,22 @@ module Gitlab
     end
 
     def highlight(text, continue: true, plain: false)
-      result = if plain
-                 @formatter.format(Rouge::Lexers::PlainText.lex(text)).html_safe
-               else
-                 @formatter.format(@lexer.lex(text, continue: continue)).html_safe
-               end
+      highlighted_text =
+        if plain
+          @formatter.format(Rouge::Lexers::PlainText.lex(text)).html_safe
+        else
+          @formatter.format(@lexer.lex(text, continue: continue)).html_safe
+        end
 
-      link_dependencies(result)
+      highlighted_text = link_dependencies(text, highlighted_text)
     rescue
       @formatter.format(Rouge::Lexers::PlainText.lex(text)).html_safe
     end
 
     private
 
-    def link_dependencies(highlighted_text)
-      Gitlab::DependencyLinker.process(blob_name, highlighted_text)
+    def link_dependencies(text, highlighted_text)
+      Gitlab::DependencyLinker.process(blob_name, text, highlighted_text)
     end
 
     def rouge_formatter(options = {})

@@ -4,19 +4,17 @@ module Gitlab
       LinkGemfile
     ]
 
-    def self.process(blob_name, highlighted_text)
+    def self.process(blob_name, plain_text, highlighted_text)
       linker = linker(blob_name)
       return highlighted_text unless linker
 
-      linker.link(highlighted_text)
+      linker.link(plain_text, highlighted_text)
     end
 
     private
 
     def self.linker(blob_name)
-      LINKERS.find do |linker|
-        linker.support?(blob_name)
-      end
+      LINKERS.find { |linker| linker.support?(blob_name) }
     end
   end
 end

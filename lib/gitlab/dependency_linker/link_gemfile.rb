@@ -5,7 +5,7 @@ module Gitlab
         blob_name == 'Gemfile'
       end
 
-      def self.link(highlighted_text)
+      def self.link(plain_text, highlighted_text)
         doc = Nokogiri::HTML::DocumentFragment.parse(highlighted_text)
 
         doc.xpath('.//span[@class="n"][.="gem"]').each do |gem|
