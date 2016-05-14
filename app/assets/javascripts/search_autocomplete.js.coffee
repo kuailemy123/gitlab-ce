@@ -195,8 +195,10 @@ class @SearchAutocomplete
       _this = @
       @loadingSuggestions = false
 
-      @dropdown
-        .addClass('open')
+    # If not enabled already, enable
+    if not @dropdown.hasClass('open')
+      # Open dropdown and invoke its opened() method
+      @dropdown.addClass('open')
         .trigger('shown.bs.dropdown')
       @searchInput.removeClass('disabled')
 
@@ -221,6 +223,10 @@ class @SearchAutocomplete
 
       when KEYCODE.ESCAPE
         @restoreOriginalState()
+
+      # Close autocomplete on enter
+      when KEYCODE.ENTER
+        @disableAutocomplete()
 
       else
         # Handle the case when deleting the input value other than backspace
@@ -312,9 +318,13 @@ class @SearchAutocomplete
 
 
   disableAutocomplete: ->
-    @searchInput.addClass('disabled')
-    @dropdown.removeClass('open')
-    @restoreMenu()
+    # If not disabled already, disable
+    if not @searchInput.hasClass('disabled') && @dropdown.hasClass('open')
+      @searchInput.addClass('disabled')
+      # Close dropdown and invoke its hidden() method
+      @dropdown.removeClass('open')
+        .trigger('hidden.bs.dropdown')
+      @restoreMenu()
 
   restoreMenu: ->
     html = "<ul>

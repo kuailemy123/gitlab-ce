@@ -2,6 +2,7 @@ class GitLabDropdownFilter
   BLUR_KEYCODES = [27, 40]
   ARROW_KEY_CODES = [38, 40]
   HAS_VALUE_CLASS = "has-value"
+  CURSOR_SELECT_SCROLL_PADDING = 5
 
   constructor: (@input, @options) ->
     {
@@ -169,7 +170,7 @@ class GitLabDropdown
     if _.isString(@filterInput)
       @filterInput = @getElement(@filterInput)
 
-    searchFields = if @options.search then @options.search.fields else [];
+    searchFields = if @options.search then @options.search.fields else []
 
     if @options.data
       # If we provided data
@@ -185,6 +186,8 @@ class GitLabDropdown
           success: (data) =>
             @fullData = data
 
+            # Reset selected row index on new data
+            currentIndex = -1
             @parseData @fullData
         }
 
@@ -197,7 +200,7 @@ class GitLabDropdown
         query: @options.data
         keys: searchFields
         elements: =>
-          selector = '.dropdown-content li:not(.divider)'
+          selector = '.dropdown-content .selectable'
 
           if @dropdown.find('.dropdown-toggle-page').length
             selector = ".dropdown-page-one #{selector}"
@@ -299,6 +302,7 @@ class GitLabDropdown
         return true
 
   opened: =>
+    @resetRows()
     @addArrowKeyEvent()
 
     if @options.setIndeterminateIds
@@ -321,6 +325,7 @@ class GitLabDropdown
     @dropdown.trigger('shown.gl.dropdown')
 
   hidden: (e) =>
+    @resetRows()
     @removeArrayKeyEvent()
 
     $input = @dropdown.find(".dropdown-input-field")
@@ -411,7 +416,7 @@ class GitLabDropdown
       else
         groupAttrs = ''
 
-      html = "<li>
+      html = "<li class='selectable'>
         <a href='#{url}' #{groupAttrs} class='#{cssClass}'>
           #{text}
         </a>
@@ -431,14 +436,6 @@ class GitLabDropdown
         No matching results.
       </a>
     </li>"
-
-  highlightRow: (index) ->
-    if @filterInput.val() isnt ""
-      selector = '.dropdown-content li:first-child a'
-      if @dropdown.find(".dropdown-toggle-page").length
-        selector = ".dropdown-page-one .dropdown-content li:first-child a"
-
-      @getElement(selector).addClass 'is-focused'
 
   rowClicked: (el) ->
     fieldName = @options.fieldName
@@ -507,7 +504,8 @@ class GitLabDropdown
     @dropdown.before $input
 
   selectRowAtIndex: (e, index) ->
-    selector = ".dropdown-content li:not(.divider,.dropdown-header,.separator):eq(#{index}) a"
+    # Dropdown list item link selector, excluding non-selectable list items
+    selector = ".dropdown-content .selectable:eq(#{index}) a"
 
     if @dropdown.find(".dropdown-toggle-page").length
       selector = ".dropdown-page-one #{selector}"
@@ -518,13 +516,14 @@ class GitLabDropdown
     if $el.length
       e.preventDefault()
       e.stopImmediatePropagation()
-      $(selector, @dropdown)[0].click()
+      $(selector, @dropdown).click()
 
   addArrowKeyEvent: ->
     ARROW_KEY_CODES = [38, 40]
     $input = @dropdown.find(".dropdown-input-field")
 
-    selector = '.dropdown-content li:not(.divider,.dropdown-header,.separator)'
+    # Dropdown list item selector, excluding non-selectable list items
+    selector = '.dropdown-content .selectable'
     if @dropdown.find(".dropdown-toggle-page").length
       selector = ".dropdown-page-one #{selector}"
 
@@ -552,11 +551,19 @@ class GitLabDropdown
 
         return false
 
-      if currentKeyCode is 13 and currentIndex isnt -1
+      # If enter is pressed and a row is highlighted, select it
+      if currentKeyCode is 13 and currentIndex != -1
+        e.preventDefault()
+        e.stopImmediatePropagation()
         @selectRowAtIndex e, currentIndex
 
   removeArrayKeyEvent: ->
     $('body').off 'keydown'
+
+  # Resets the currently selected item row index and removes all highlights
+  resetRows: ->
+    currentIndex = -1
+    $('.is-focused', @dropdown).removeClass 'is-focused'
 
   highlightRowAtIndex: ($listItems, index) ->
     # Remove the class for the previously focused row
@@ -578,12 +585,18 @@ class GitLabDropdown
     listItemTop = $listItem.prop('offsetTop')
     listItemBottom = listItemTop + listItemHeight
 
-    if listItemBottom > dropdownContentBottom + dropdownScrollTop
-      # Scroll the dropdown content down
-      $dropdownContent.scrollTop(listItemBottom - dropdownContentBottom)
+    if index is 0
+      # If this is the first item in the list, scroll to the top
+      $dropdownContent.scrollTop(0)
+    else if index is $listItems.length - 1
+      # If this is the last item in the list, scroll to the bottom
+      $dropdownContent.scrollTop($dropdownContent[0].scrollHeight)
+    else if listItemBottom > dropdownContentBottom + dropdownScrollTop
+      # Scroll the dropdown content down with a little padding
+      $dropdownContent.scrollTop(listItemBottom - dropdownContentBottom + CURSOR_SELECT_SCROLL_PADDING)
     else if listItemTop < dropdownContentTop + dropdownScrollTop
-      # Scroll the dropdown content up
-      $dropdownContent.scrollTop(listItemTop - dropdownContentTop)
+      # Scroll the dropdown content up with a little padding
+      $dropdownContent.scrollTop(listItemTop - dropdownContentTop - CURSOR_SELECT_SCROLL_PADDING)
 
   updateLabel: (selected = null, el = null) =>
     $(@el).find(".dropdown-toggle-text").text @options.toggleLabel(selected, el)
