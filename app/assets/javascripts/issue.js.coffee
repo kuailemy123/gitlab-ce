@@ -13,18 +13,25 @@ class @Issue
     @initMergeRequests()
     @initRelatedBranches()
     @initCanCreateBranch()
+    @initClosedListener()
 
   initTaskList: ->
     $('.detail-page-description .js-task-list-container').taskList('enable')
     $(document).on 'tasklist:changed', '.detail-page-description .js-task-list-container', @updateTaskList
 
+  initClosedListener: ->
+    $(document)
+      .off 'issuable:closed'
+      .on 'issuable:closed', =>
+        @showClosedButtons()
+
   initIssueBtnEventListeners: ->
     _this = @
     issueFailMessage = 'Unable to update this issue at this time.'
-    $('a.btn-close, a.btn-reopen').on 'click', (e) ->
+    $('a.btn-close, a.btn-reopen').on 'click', (e) =>
       e.preventDefault()
       e.stopImmediatePropagation()
-      $this = $(this)
+      $this = $(e.currentTarget)
       isClose = $this.hasClass('btn-close')
       shouldSubmit = $this.hasClass('btn-comment')
       if shouldSubmit
@@ -37,22 +44,28 @@ class @Issue
         error: (jqXHR, textStatus, errorThrown) ->
           issueStatus = if isClose then 'close' else 'open'
           new Flash(issueFailMessage, 'alert')
-        success: (data, textStatus, jqXHR) ->
+        success: (data, textStatus, jqXHR) =>
           if 'id' of data
             $(document).trigger('issuable:change');
             if isClose
-              $('a.btn-close').addClass('hidden')
-              $('a.btn-reopen').removeClass('hidden')
-              $('div.status-box-closed').removeClass('hidden')
-              $('div.status-box-open').addClass('hidden')
+              @showClosedButtons()
             else
-              $('a.btn-reopen').addClass('hidden')
-              $('a.btn-close').removeClass('hidden')
-              $('div.status-box-closed').addClass('hidden')
-              $('div.status-box-open').removeClass('hidden')
+              @showOpenButtons()
           else
             new Flash(issueFailMessage, 'alert')
           $this.prop('disabled', false)
+
+  showClosedButtons: ->
+    $('a.btn-close').addClass('hidden')
+    $('a.btn-reopen').removeClass('hidden')
+    $('div.status-box-closed').removeClass('hidden')
+    $('div.status-box-open').addClass('hidden')
+
+  showOpenButtons: ->
+    $('a.btn-reopen').addClass('hidden')
+    $('a.btn-close').removeClass('hidden')
+    $('div.status-box-closed').addClass('hidden')
+    $('div.status-box-open').removeClass('hidden')
 
   submitNoteForm: (form) =>
     noteText = form.find("textarea.js-note-text").val()
