@@ -7,6 +7,45 @@ issuable_created = false
       Issuable.initSearch()
       Issuable.initChecks()
       Issuable.initLabelFilterRemove()
+      Issuable.initStatusListener()
+
+  initStatusListener: ->
+    $(document)
+      .off 'issuable:status'
+      .on 'issuable:status', (e, status) ->
+        if status is "open"
+          Issuable.showOpenButtons()
+        else if status is "closed"
+          Issuable.showClosedButtons()
+        else if status is "merged"
+          Issuable.showClosedButtons()
+          Issuable.showMergedStatus()
+
+        Issuable.updateMergeRequestStatus()
+
+  updateMergeRequestStatus: ->
+    if merge_request_widget?
+      merge_request_widget.getMergeStatus()
+
+  showClosedButtons: ->
+    $('.btn-close').addClass('hidden')
+    $('.btn-reopen').removeClass('hidden')
+    $('.status-box-merged').addClass('hidden')
+    $('.status-box-closed').removeClass('hidden')
+    $('.status-box-open').addClass('hidden')
+
+  showOpenButtons: ->
+    $('.btn-reopen').addClass('hidden')
+    $('.btn-close').removeClass('hidden')
+    $('.status-box-merged').addClass('hidden')
+    $('.status-box-closed').addClass('hidden')
+    $('.status-box-open').removeClass('hidden')
+
+  showMergedStatus: ->
+    $('.status-box-merged').removeClass('hidden')
+    $('.status-box-closed').addClass('hidden')
+    $('.status-box-open').addClass('hidden')
+>>>>>>> Correctly updates status of issues & merge requests by db status
 
   initTemplates: ->
     Issuable.labelRow = _.template(

@@ -13,17 +13,10 @@ class @Issue
     @initMergeRequests()
     @initRelatedBranches()
     @initCanCreateBranch()
-    @initClosedListener()
 
   initTaskList: ->
     $('.detail-page-description .js-task-list-container').taskList('enable')
     $(document).on 'tasklist:changed', '.detail-page-description .js-task-list-container', @updateTaskList
-
-  initClosedListener: ->
-    $(document)
-      .off 'issuable:closed'
-      .on 'issuable:closed', =>
-        @showClosedButtons()
 
   initIssueBtnEventListeners: ->
     _this = @
@@ -48,24 +41,12 @@ class @Issue
           if 'id' of data
             $(document).trigger('issuable:change');
             if isClose
-              @showClosedButtons()
+              Issuable.showClosedButtons()
             else
-              @showOpenButtons()
+              Issuable.showOpenButtons()
           else
             new Flash(issueFailMessage, 'alert')
           $this.prop('disabled', false)
-
-  showClosedButtons: ->
-    $('a.btn-close').addClass('hidden')
-    $('a.btn-reopen').removeClass('hidden')
-    $('div.status-box-closed').removeClass('hidden')
-    $('div.status-box-open').addClass('hidden')
-
-  showOpenButtons: ->
-    $('a.btn-reopen').addClass('hidden')
-    $('a.btn-close').removeClass('hidden')
-    $('div.status-box-closed').addClass('hidden')
-    $('div.status-box-open').removeClass('hidden')
 
   submitNoteForm: (form) =>
     noteText = form.find("textarea.js-note-text").val()

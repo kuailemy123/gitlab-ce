@@ -128,16 +128,22 @@ class @Notes
       data: "last_fetched_at=" + @last_fetched_at
       dataType: "json"
       success: (data) =>
+        $issuableHeader = $('.js-issuable-header')
         notes = data.notes
         @last_fetched_at = data.last_fetched_at
         @setPollingInterval(data.notes.length)
+
+        if $issuableHeader.attr('data-status') isnt data.status
+          $issuableHeader.attr('data-status', data.status)
+          $(document).trigger 'issuable:status', data.status
+
         $.each notes, (i, note) =>
           if note.discussion_with_diff_html?
             @renderDiscussionNote(note)
           else
             @renderNote(note)
-    .always () =>
-      @refreshing = false
+      always: =>
+        @refreshing = false
 
   ###
   Increase @pollingInterval up to 120 seconds on every function call,
