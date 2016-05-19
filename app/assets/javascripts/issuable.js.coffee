@@ -45,7 +45,6 @@ issuable_created = false
     $('.status-box-merged').removeClass('hidden')
     $('.status-box-closed').addClass('hidden')
     $('.status-box-open').addClass('hidden')
->>>>>>> Correctly updates status of issues & merge requests by db status
 
   initTemplates: ->
     Issuable.labelRow = _.template(

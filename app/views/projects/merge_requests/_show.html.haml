@@ -14,14 +14,14 @@
       - if @merge_request.open?
         .pull-right
           - if @merge_request.source_branch_exists?
-            = link_to "#modal_merge_info", class: "btn inline btn-grouped btn-sm", "data-toggle" => "modal" do
+            = link_to "#modal_merge_info", class: "btn btn-sm", "data-toggle" => "modal" do
               Check out branch
 
           %span.dropdown
             %a.btn.btn-sm.dropdown-toggle{ data: {toggle: :dropdown} }
               Download as
               %span.caret
-            %ul.dropdown-menu
+            %ul.dropdown-menu.dropdown-menu-align-right
               %li= link_to "Email Patches", merge_request_path(@merge_request, format: :patch)
               %li= link_to "Plain Diff",    merge_request_path(@merge_request, format: :diff)
       .normal
@@ -30,7 +30,8 @@
         %span into
         %span.label-branch
           = link_to @merge_request.target_branch, namespace_project_commits_path(@project.namespace, @project, @merge_request.target_branch)
-        %span (#{pluralize(@merge_request.diverged_commits_count, 'commit')} behind)
+        - if @merge_request.open? && @merge_request.diverged_from_target_branch?
+          %span (#{pluralize(@merge_request.diverged_commits_count, 'commit')} behind)
 
     = render "projects/merge_requests/show/how_to_merge"
     = render "projects/merge_requests/widget/show.html.haml"
