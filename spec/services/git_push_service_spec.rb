@@ -276,7 +276,6 @@ describe GitPushService, services: true do
 
       allow(commit).to receive_messages(
         safe_message: "this commit \n mentions #{issue.to_reference}",
-        references: [issue],
         author_name: commit_author.name,
         author_email: commit_author.email
       )
@@ -326,7 +325,6 @@ describe GitPushService, services: true do
 
     before do
       allow(closing_commit).to receive_messages(
-        issue_closing_regex: /^([Cc]loses|[Ff]ixes) #\d+/,
         safe_message: "this is some work.\n\ncloses ##{issue.iid}",
         author_name: commit_author.name,
         author_email: commit_author.email
@@ -395,11 +393,10 @@ describe GitPushService, services: true do
         WebMock.stub_request(:get, jira_api_test_url)
 
         allow(closing_commit).to receive_messages({
-                                                    issue_closing_regex: Regexp.new(Gitlab.config.gitlab.issue_closing_pattern),
-                                                    safe_message: message,
-                                                    author_name: commit_author.name,
-                                                    author_email: commit_author.email
-                                                  })
+          safe_message: message,
+          author_name: commit_author.name,
+          author_email: commit_author.email
+        })
 
         allow(project.repository).to receive_messages(commits_between: [closing_commit])
       end
