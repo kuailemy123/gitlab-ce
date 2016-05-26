@@ -3,7 +3,7 @@
   = hidden_field_tag :scope, params[:scope]
 
   .search-holder
-    .search-field-holder
+    .search-field-holder 
       = search_field_tag :search, params[:search], placeholder: "Search for projects, issues etc", class: "form-control search-text-input js-search-input", id: "dashboard_search", autofocus: true, spellcheck: false
       = icon("search", class: "search-icon")
       %button.search-clear.js-search-clear{ class: ("hidden" if !params[:search].present?), type: "button", tabindex: "-1" }

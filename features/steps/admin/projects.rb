@@ -18,9 +18,9 @@ class Spinach::Features::AdminProjects < Spinach::FeatureSteps
     end
   end
 
-  step 'I check "Show archived projects"' do
-    page.check 'Show archived projects'
-    click_button "Search"
+  step 'I select "Show archived projects"' do
+    find(:css, '#sort-projects-dropdown').click
+    click_link 'Show archived projects'
   end
 
   step 'I should see "archived" label' do

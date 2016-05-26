@@ -6,6 +6,10 @@ module ExploreHelper
       group: params[:group],
       tag: params[:tag],
       visibility_level: params[:visibility_level],
+
+      # Params used on admin projects page
+      name: params[:name],
+      namespace_id: params[:namespace_id]
     }
 
     options = exist_opts.merge(options)

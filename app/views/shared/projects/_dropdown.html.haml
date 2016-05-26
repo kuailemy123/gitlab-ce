@@ -2,10 +2,8 @@
 - personal = params[:personal]
 - archived = params[:archived]
 .dropdown.inline
-  %button.dropdown-toggle.btn{type: 'button', 'data-toggle' => 'dropdown'}
-    %span.light
-      = projects_sort_options_hash[@sort]
-    %b.caret
+  - toggle_text = projects_sort_options_hash[@sort]
+  = dropdown_toggle(toggle_text, { toggle: 'dropdown' }, { id: 'sort-projects-dropdown' })
   %ul.dropdown-menu.dropdown-menu-align-right.dropdown-menu-selectable
     %li.dropdown-header
       Sort by
@@ -24,8 +22,8 @@
     - if current_user
       %li.divider
       %li
-        = link_to filter_projects_path(sort: @sort, personal: nil), class: ("is-active" unless personal) do
+        = link_to filter_projects_path(sort: @sort, personal: nil), class: ("is-active" unless personal.present?) do
           Owned by anyone
       %li
-        = link_to filter_projects_path(sort: @sort, personal: true), class: ("is-active" if personal) do
+        = link_to filter_projects_path(sort: @sort, personal: true), class: ("is-active" if personal.present?) do
           Owned by me
