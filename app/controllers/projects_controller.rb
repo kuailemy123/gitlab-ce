@@ -139,11 +139,20 @@ class ProjectsController < Projects::ApplicationController
     participants = ::Projects::ParticipantsService.new(@project, current_user).execute(note_type, note_id)
 
     @suggestions = {
-      emojis: Gitlab::AwardEmoji.urls,
       issues: autocomplete.issues,
       milestones: autocomplete.milestones,
       mergerequests: autocomplete.merge_requests,
       members: participants
+    }
+
+    respond_to do |format|
+      format.json { render json: @suggestions }
+    end
+  end
+
+  def autocomplete_sources_emoji
+    @suggestions = {
+      emojis: AwardEmoji.urls
     }
 
     respond_to do |format|

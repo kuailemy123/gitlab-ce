@@ -2,5 +2,7 @@
 
 - if @noteable
   :javascript
-    GitLab.GfmAutoComplete.dataSource = "#{autocomplete_sources_namespace_project_path(project.namespace, project, type: @noteable.class, type_id: params[:id])}"
+    GitLab.GfmAutoComplete.dataSource = "#{autocomplete_sources_namespace_project_path(project.namespace, project, type: @noteable.class)}"
     GitLab.GfmAutoComplete.setup();
+    GitLab.GfmAutoCompleteEmoji.dataSource = "#{autocomplete_sources_emoji_namespace_project_path(project.namespace, project, type: @noteable.class)}"
+    GitLab.GfmAutoCompleteEmoji.setup();

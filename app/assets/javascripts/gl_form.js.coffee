@@ -27,6 +27,7 @@ class @GLForm
 
       # remove notify commit author checkbox for non-commit notes
       GitLab.GfmAutoComplete.setup()
+      GitLab.GfmAutoCompleteEmoji.setup()
       new DropzoneInput(@form)
 
       autosize(@textarea)

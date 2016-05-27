@@ -6,10 +6,6 @@ GitLab.GfmAutoComplete =
 
   dataSource: ''
 
-  # Emoji
-  Emoji:
-    template: '<li>${name} <img alt="${name}" height="20" src="${path}" width="20" /></li>'
-
   # Team Members
   Members:
     template: '<li>${username} <small>${title}</small></li>'
@@ -50,12 +46,6 @@ GitLab.GfmAutoComplete =
 
 
   setupAtWho: ->
-    # Emoji
-    @input.atwho
-      at: ':'
-      displayTpl: @Emoji.template
-      insertTpl: ':${name}:'
-
     # Team Members
     @input.atwho
       at: '@'
@@ -126,5 +116,57 @@ GitLab.GfmAutoComplete =
     @input.atwho 'load', 'milestones', data.milestones
     # load merge requests
     @input.atwho 'load', 'mergerequests', data.mergerequests
+
+GitLab.GfmAutoCompleteEmoji =
+  dataLoading: false
+
+  dataSource: ''
+
+  # Emoji
+  Emoji:
+    template: '<li>${name} <img alt="${name}" height="20" src="${path}" width="20" /></li>'
+
+  # Add GFM auto-completion to all input fields, that accept GFM input.
+  setup: (wrap) ->
+    @input = $('.js-gfm-input')
+
+    # destroy previous instances
+    @destroyAtWho()
+
+    # set up instances
+    @setupAtWho()
+
+    if @dataSource
+      console.log(@dataSource)
+      if !@dataLoading
+        @dataLoading = true
+
+        # We should wait until initializations are done
+        # and only trigger the last .setup since
+        # The previous .dataSource belongs to the previous issuable
+        # and the last one will have the **proper** .dataSource property
+        # TODO: Make this a singleton and turn off events when moving to another page
+        setTimeout( =>
+          fetch = @fetchData(@dataSource)
+          fetch.done (data) =>
+            @dataLoading = false
+            @loadData(data)
+        , 1000)
+
+
+  setupAtWho: ->
+    # Emoji
+    @input.atwho
+      at: ':'
+      displayTpl: @Emoji.template
+      insertTpl: ':${name}:'
+
+  destroyAtWho: ->
+    @input.atwho('destroy')
+
+  fetchData: (dataSource) ->
+    $.getJSON(dataSource)
+
+  loadData: (data) ->
     # load emojis
     @input.atwho 'load', ':', data.emojis
