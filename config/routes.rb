@@ -450,7 +450,6 @@ Rails.application.routes.draw do
         post :toggle_star
         post :markdown_preview
         get :autocomplete_sources
-        get :autocomplete_sources_emoji
         get :activity
       end
 

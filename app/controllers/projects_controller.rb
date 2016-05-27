@@ -150,16 +150,6 @@ class ProjectsController < Projects::ApplicationController
     end
   end
 
-  def autocomplete_sources_emoji
-    @suggestions = {
-      emojis: AwardEmoji.urls
-    }
-
-    respond_to do |format|
-      format.json { render json: @suggestions }
-    end
-  end
-
   def archive
     return access_denied! unless can?(current_user, :archive_project, @project)
 

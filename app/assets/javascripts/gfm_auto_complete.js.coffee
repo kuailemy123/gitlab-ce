@@ -169,4 +169,4 @@ GitLab.GfmAutoCompleteEmoji =
 
   loadData: (data) ->
     # load emojis
-    @input.atwho 'load', ':', data.emojis
+    @input.atwho 'load', ':', data.emoji
