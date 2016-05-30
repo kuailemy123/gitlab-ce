@@ -3,7 +3,7 @@ class EmojisController < ApplicationController
 
   def index
     @emoji = {
-      emoji: AwardEmoji.urls
+      emoji: Gitlab::AwardEmoji.urls
     }
 
     respond_to do |format|

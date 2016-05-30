@@ -130,14 +130,10 @@ GitLab.GfmAutoCompleteEmoji =
   setup: (wrap) ->
     @input = $('.js-gfm-input')
 
-    # destroy previous instances
-    @destroyAtWho()
-
     # set up instances
     @setupAtWho()
 
     if @dataSource
-      console.log(@dataSource)
       if !@dataLoading
         @dataLoading = true
 
@@ -160,9 +156,6 @@ GitLab.GfmAutoCompleteEmoji =
       at: ':'
       displayTpl: @Emoji.template
       insertTpl: ':${name}:'
-
-  destroyAtWho: ->
-    @input.atwho('destroy')
 
   fetchData: (dataSource) ->
     $.getJSON(dataSource)
