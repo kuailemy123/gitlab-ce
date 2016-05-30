@@ -386,7 +386,7 @@ Style/MultilineOperationIndentation:
 
 # Avoid multi-line `? :` (the ternary operator), use if/unless instead.
 Style/MultilineTernaryOperator:
-  Enabled: false
+  Enabled: true
 
 # Do not assign mutable objects to constants.
 Style/MutableConstant:

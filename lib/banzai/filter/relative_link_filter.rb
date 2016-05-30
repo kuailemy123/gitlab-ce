@@ -135,8 +135,9 @@ module Banzai
       end
 
       def current_sha
-        context[:commit].try(:id) ||
-          ref ? repository.commit(ref).try(:sha) : repository.head_commit.sha
+        sha = context[:commit].try(:id)
+
+        sha || ref ? repository.commit(ref).try(:sha) : repository.head_commit.sha
       end
 
       def relative_url_root
