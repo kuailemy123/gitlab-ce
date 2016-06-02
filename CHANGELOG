@@ -36,6 +36,8 @@ v 8.9.0 (unreleased)
   - Improve error handling importing projects
   - Put project Files and Commits tabs under Code tab
   - Replace Colorize with Rainbow for coloring console output in Rake tasks.
+  - Deprecate APIs "projects/:id/keys/...". Use "projects/:id/deploy_keys/..." instead
+  - Add API "deploy_keys" for admins to get all deploy keys
 
 v 8.8.4
   - Fix todos page throwing errors when you have a project pending deletion
