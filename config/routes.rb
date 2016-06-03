@@ -95,6 +95,7 @@ Rails.application.routes.draw do
   resources :snippets do
     member do
       get 'raw'
+      post :toggle_award_emoji
     end
   end
 
@@ -104,7 +105,6 @@ Rails.application.routes.draw do
   #
   # Invites
   #
-
   resources :invites, only: [:show], constraints: { id: /[A-Za-z0-9_-]+/ } do
     member do
       post :accept
@@ -583,6 +583,7 @@ Rails.application.routes.draw do
         resources :snippets, constraints: { id: /\d+/ } do
           member do
             get 'raw'
+            post :toggle_award_emoji
           end
         end
 
