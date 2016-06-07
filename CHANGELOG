@@ -16,6 +16,7 @@ v 8.9.0 (unreleased)
   - Fix groups API to list only user's accessible projects
   - Redesign account and email confirmation emails
   - Use gitlab-shell v3.0.0
+  - Use custom Ruby images to test builds (registry.gitlab.com/gitlab-org/gitlab-build-images:*)
   - Add `sha` parameter to MR merge API, to ensure only reviewed changes are merged
   - Don't allow MRs to be merged when commits were added since the last review / page load
   - Add DB index on users.state
