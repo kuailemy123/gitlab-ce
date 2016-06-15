@@ -6,6 +6,8 @@ module Rouge
       tag 'html_gitlab'
 
       # Creates a new <tt>Rouge::Formatter::HTMLGitlab</tt> instance.
+      #
+      # [+linenostart+]     The line number for the first line (default: 1).
       def initialize(linenostart: 1)
         @linenostart = linenostart
       end
