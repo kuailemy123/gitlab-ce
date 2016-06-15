@@ -14,7 +14,7 @@ module Gitlab
     end
 
     def initialize(blob_name, blob_content)
-      @formatter = rouge_formatter
+      @formatter = Rouge::Formatters::HTMLGitlab.new
       @lexer = Rouge::Lexer.guess(filename: blob_name, source: blob_content).new rescue Rouge::Lexers::PlainText
     end
 
@@ -29,12 +29,6 @@ module Gitlab
       @formatter.format(@lexer.lex(text, continue: continue)).html_safe
     rescue
       @formatter.format(Rouge::Lexers::PlainText.lex(text)).html_safe
-    end
-
-    private
-
-    def rouge_formatter(options = {})
-      Rouge::Formatters::HTMLGitlab.new
     end
   end
 end
