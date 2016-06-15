@@ -14,9 +14,9 @@ module Rouge
         token_lines(tokens).each_with_index do |line, index|
           line_number = @linenostart + index
 
-          yield "<span id=\"LC#{line_number}\" class=\"line\">"
-          line.each { |tok, val| yield span(tok, val) }
-          yield "</span>\n"
+          yield %<<span id="LC#{line_number}" class="line">>
+          line.each { |token, value| yield span(token, value) }
+          yield %<</span>\n>
         end
       end
     end
