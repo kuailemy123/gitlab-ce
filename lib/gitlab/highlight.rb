@@ -34,10 +34,7 @@ module Gitlab
     private
 
     def rouge_formatter(options = {})
-      Rouge::Formatters::HTMLGitlab.new(
-        lineanchors: true,
-        lineanchorsid: 'LC'
-      )
+      Rouge::Formatters::HTMLGitlab.new
     end
   end
 end
