@@ -66,6 +66,7 @@ PUT /application/settings
 | `user_oauth_applications` | boolean | no | Allow users to register any application to use GitLab as an OAuth provider |
 | `after_sign_out_path` | string | no | Where to redirect users after logout |
 | `container_registry_token_expire_delay` | integer | no | Container Registry token duration in minutes |
+| `enabled_git_access_protocols` | string | no | Enabled protocols for Git access. Allowed values are: `ssh`, `http`, and `nil` to allow both protocols.
 
 ```bash
 curl -X PUT -H "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" https://gitlab.example.com/api/v3/application/settings?signup_enabled=false&default_project_visibility=1

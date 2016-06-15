@@ -34,6 +34,7 @@ v 8.9.0 (unreleased)
   - Fix groups API to list only user's accessible projects
   - Fix horizontal scrollbar for long commit message.
   - Add Environments and Deployments
+  - Add "Enabled Git access protocols" to Application Settings
   - Redesign account and email confirmation emails
   - Don't fail builds for projects that are deleted
   - Support Docker Registry manifest v1
