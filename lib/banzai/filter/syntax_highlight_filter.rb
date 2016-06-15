@@ -20,7 +20,7 @@ module Banzai
         code     = node.text
 
         begin
-          highlighted = block_code(code, language)
+          highlighted = %<<pre class="highlight"><code>#{block_code(code, language)}</code></pre>>
         rescue
           # Gracefully handle syntax highlighter bugs/errors to ensure
           # users can still access an issue/comment/etc.
