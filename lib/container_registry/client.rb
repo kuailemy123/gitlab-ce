@@ -9,17 +9,19 @@ module ContainerRegistry
 
     def initialize(base_uri, options = {})
       @base_uri = base_uri
-      @faraday = Faraday.new(@base_uri) do |conn|
+      @faraday = Faraday.new(@base_uri, ssl: { verify: false }) do |conn|
         initialize_connection(conn, options)
       end
     end
 
     def repository_tags(name)
-      @faraday.get("/v2/#{name}/tags/list").body
+      response = @faraday.get("/v2/#{name}/tags/list")
+      response.body if response.success?
     end
 
     def repository_manifest(name, reference)
-      @faraday.get("/v2/#{name}/manifests/#{reference}").body
+      response = @faraday.get("/v2/#{name}/manifests/#{reference}")
+      response.body if response.success?
     end
 
     def repository_tag_digest(name, reference)
@@ -34,7 +36,8 @@ module ContainerRegistry
     def blob(name, digest, type = nil)
       headers = {}
       headers['Accept'] = type if type
-      @faraday.get("/v2/#{name}/blobs/#{digest}", nil, headers).body
+      response = @faraday.get("/v2/#{name}/blobs/#{digest}", nil, headers)
+      response.body if response.success?
     end
 
     def delete_blob(name, digest)
@@ -44,6 +47,7 @@ module ContainerRegistry
     private
     
     def initialize_connection(conn, options)
+      conn.use FaradayMiddleware::FollowRedirects, limit: 1
       conn.request :json
       conn.headers['Accept'] = MANIFEST_VERSION
 
