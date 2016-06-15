@@ -11,14 +11,12 @@ module Rouge
       end
 
       def stream(tokens, &b)
-        line_number = @linenostart
+        token_lines(tokens).each_with_index do |line, index|
+          line_number = @linenostart + index
 
-        token_lines(tokens) do |line|
           yield "<span id=\"LC#{line_number}\" class=\"line\">"
           line.each { |tok, val| yield span(tok, val) }
           yield "</span>\n"
-
-          line_number += 1
         end
       end
     end
