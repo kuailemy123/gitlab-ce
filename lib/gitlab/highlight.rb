@@ -1,7 +1,7 @@
 module Gitlab
   class Highlight
-    def self.highlight(blob_name, blob_content, nowrap: true, plain: false)
-      new(blob_name, blob_content, nowrap: nowrap).
+    def self.highlight(blob_name, blob_content, plain: false)
+      new(blob_name, blob_content).
         highlight(blob_content, continue: false, plain: plain)
     end
 
@@ -13,8 +13,8 @@ module Gitlab
       highlight(file_name, blob.data).lines.map!(&:html_safe)
     end
 
-    def initialize(blob_name, blob_content, nowrap: true)
-      @formatter = rouge_formatter(nowrap: nowrap)
+    def initialize(blob_name, blob_content)
+      @formatter = rouge_formatter
       @lexer = Rouge::Lexer.guess(filename: blob_name, source: blob_content).new rescue Rouge::Lexers::PlainText
     end
 
@@ -34,13 +34,11 @@ module Gitlab
     private
 
     def rouge_formatter(options = {})
-      options = options.reverse_merge(
+      Rouge::Formatters::HTMLGitlab.new(
         cssclass: 'code highlight',
         lineanchors: true,
         lineanchorsid: 'LC'
       )
-
-      Rouge::Formatters::HTMLGitlab.new(options)
     end
   end
 end
