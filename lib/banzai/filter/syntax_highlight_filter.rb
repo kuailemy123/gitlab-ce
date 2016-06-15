@@ -39,7 +39,7 @@ module Banzai
 
       # Override Rouge::Plugins::Redcarpet#rouge_formatter
       def rouge_formatter(lexer)
-        Rouge::Formatters::HTMLGitlab.new
+        Rouge::Formatters::HTML.new
       end
     end
   end
