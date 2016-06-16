@@ -1,5 +1,6 @@
 class ProtectedBranch < ActiveRecord::Base
   include Gitlab::ShellAdapter
+  include InternalId
 
   belongs_to :project
   validates :name, presence: true
@@ -17,6 +18,12 @@ class ProtectedBranch < ActiveRecord::Base
   # through, to avoid calling out to the database.
   def self.matching(branch_name, protected_branches: nil)
     (protected_branches || all).select { |protected_branch| protected_branch.matches?(branch_name) }
+  end
+
+  # Returns all branches (among the given list of branches [`Gitlab::Git::Branch`])
+  # that match the current protected branch.
+  def matching(branches)
+    branches.select { |branch| self.matches?(branch.name) }
   end
 
   # Checks if the protected branch matches the given branch name.
