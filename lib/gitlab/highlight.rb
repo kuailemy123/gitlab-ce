@@ -26,7 +26,7 @@ module Gitlab
         continue = false
       end
 
-      @formatter.format(@lexer.lex(text, continue: continue)).html_safe
+      @formatter.format(lexer.lex(text, continue: continue)).html_safe
     rescue
       @formatter.format(Rouge::Lexers::PlainText.lex(text)).html_safe
     end
