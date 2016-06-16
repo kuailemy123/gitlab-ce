@@ -94,8 +94,12 @@ module MergeRequestsHelper
   end
 
   def merge_request_button_visibility(merge_request, type)
-    return "hidden" if type == "merged" && !merge_request.merged?
-    return "hidden" if type == "closed" && !merge_request.closed?
-    return "hidden" if type == "open" && (merge_request.closed? || merge_request.merged?)
+    if type == "merged" && !merge_request.merged?
+      return "hidden"
+    elsif type == "closed" && !merge_request.closed?
+      return "hidden"
+    elsif type == "open" && (merge_request.closed? || merge_request.merged?)
+      return "hidden"
+    end
   end
 end

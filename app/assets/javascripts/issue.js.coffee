@@ -21,10 +21,10 @@ class @Issue
   initIssueBtnEventListeners: ->
     _this = @
     issueFailMessage = 'Unable to update this issue at this time.'
-    $('a.btn-close, a.btn-reopen').on 'click', (e) =>
+    $('a.btn-close, a.btn-reopen').on 'click', (e) ->
       e.preventDefault()
       e.stopImmediatePropagation()
-      $this = $(e.currentTarget)
+      $this = $(this)
       isClose = $this.hasClass('btn-close')
       shouldSubmit = $this.hasClass('btn-comment')
       if shouldSubmit
@@ -37,7 +37,7 @@ class @Issue
         error: (jqXHR, textStatus, errorThrown) ->
           issueStatus = if isClose then 'close' else 'open'
           new Flash(issueFailMessage, 'alert')
-        success: (data, textStatus, jqXHR) =>
+        success: (data, textStatus, jqXHR) ->
           if 'id' of data
             $(document).trigger('issuable:change');
             if isClose

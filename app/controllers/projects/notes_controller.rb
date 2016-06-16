@@ -10,7 +10,7 @@ class Projects::NotesController < Projects::ApplicationController
   def index
     current_fetched_at = Time.now.to_i
 
-    notes_json = { notes: [], last_fetched_at: current_fetched_at, status: target_status? }
+    notes_json = { notes: [], last_fetched_at: current_fetched_at, status: target_status }
 
     @notes.each do |note|
       next if note.cross_reference_not_visible_for?(current_user)
@@ -152,7 +152,7 @@ class Projects::NotesController < Projects::ApplicationController
     @notes = NotesFinder.new.execute(project, current_user, params)
   end
 
-  def target_status?
+  def target_status
     target_type = params[:target_type]
     target_id   = params[:target_id]
 

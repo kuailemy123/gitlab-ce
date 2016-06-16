@@ -142,8 +142,8 @@ class @Notes
             @renderDiscussionNote(note)
           else
             @renderNote(note)
-      always: =>
-        @refreshing = false
+    .always =>
+      @refreshing = false
 
   ###
   Increase @pollingInterval up to 120 seconds on every function call,

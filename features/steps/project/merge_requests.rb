@@ -387,7 +387,7 @@ class Spinach::Features::ProjectMergeRequests < Spinach::FeatureSteps
   end
 
   step 'I should see merged request' do
-    expect(page).to have_selector('.status-box-merged', visible: true)
+    expect(page).to have_selector('.status-box-merged')
   end
 
   step 'I click link "Reopen"' do

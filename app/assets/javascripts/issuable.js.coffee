@@ -1,5 +1,9 @@
 issuable_created = false
 @Issuable =
+  open: 'open'
+  closed: 'closed'
+  merged: 'merged'
+
   init: ->
     unless issuable_created
       issuable_created = true
@@ -13,11 +17,11 @@ issuable_created = false
     $(document)
       .off 'issuable:status'
       .on 'issuable:status', (e, status) ->
-        if status is "open"
+        if status is Issuable.open
           Issuable.showOpenButtons()
-        else if status is "closed"
+        else if status is Issuable.closed
           Issuable.showClosedButtons()
-        else if status is "merged"
+        else if status is Issuable.merged
           Issuable.showClosedButtons()
           Issuable.showMergedStatus()
 
