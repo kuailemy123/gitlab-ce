@@ -340,12 +340,14 @@ describe API::API, api: true  do
       expect(response.status).to eq(400)
     end
 
-    it 'should return 400 on invalid label names' do
+    it 'should allow special label names' do
       post api("/projects/#{project.id}/issues", user),
            title: 'new issue',
-           labels: 'label, ?'
-      expect(response.status).to eq(400)
-      expect(json_response['message']['labels']['?']['title']).to eq(['is invalid'])
+           labels: 'label, label?, label&foo'
+      expect(response.status).to eq(201)
+      expect(json_response['labels']).to include 'label'
+      expect(json_response['labels']).to include 'label?'
+      expect(json_response['labels']).to include 'label&foo'
     end
 
     it 'should return 400 if title is too long' do
@@ -415,12 +417,15 @@ describe API::API, api: true  do
       expect(response.status).to eq(404)
     end
 
-    it 'should return 400 on invalid label names' do
+    it 'should allow special label names' do
       put api("/projects/#{project.id}/issues/#{issue.id}", user),
           title: 'updated title',
-          labels: 'label, ?'
-      expect(response.status).to eq(400)
-      expect(json_response['message']['labels']['?']['title']).to eq(['is invalid'])
+          labels: 'label, label?, label&foo'
+
+      expect(response.status).to eq(200)
+      expect(json_response['labels']).to include 'label'
+      expect(json_response['labels']).to include 'label?'
+      expect(json_response['labels']).to include 'label&foo'
     end
 
     context 'confidential issues' do
@@ -485,21 +490,16 @@ describe API::API, api: true  do
       expect(json_response['labels']).to include 'bar'
     end
 
-    it 'should return 400 on invalid label names' do
-      put api("/projects/#{project.id}/issues/#{issue.id}", user),
-          labels: 'label, ?'
-      expect(response.status).to eq(400)
-      expect(json_response['message']['labels']['?']['title']).to eq(['is invalid'])
-    end
-
     it 'should allow special label names' do
       put api("/projects/#{project.id}/issues/#{issue.id}", user),
-          labels: 'label:foo, label-bar,label_bar,label/bar'
+          labels: 'label:foo, label-bar,label_bar,label/bar,label?bar,label&bar'
       expect(response.status).to eq(200)
       expect(json_response['labels']).to include 'label:foo'
       expect(json_response['labels']).to include 'label-bar'
       expect(json_response['labels']).to include 'label_bar'
       expect(json_response['labels']).to include 'label/bar'
+      expect(json_response['labels']).to include 'label?bar'
+      expect(json_response['labels']).to include 'label&bar'
     end
 
     it 'should return 400 if title is too long' do
