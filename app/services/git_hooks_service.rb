@@ -9,8 +9,13 @@ class GitHooksService
     @ref        = ref
 
     %w(pre-receive update).each do |hook_name|
-      unless run_hook(hook_name)
-        raise PreReceiveError.new("Git operation was rejected by #{hook_name} hook")
+      successful_exit, errors = run_hook(hook_name)
+      unless successful_exit
+        if errors.present?
+          raise PreReceiveError.new("Git operation was rejected by #{hook_name} hook with errors: #{errors.to_sentence}")
+        else
+          raise PreReceiveError.new("Git operation was rejected by #{hook_name} hook.")
+        end
       end
     end
 

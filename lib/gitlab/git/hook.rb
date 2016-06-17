@@ -14,7 +14,7 @@ module Gitlab
       end
 
       def trigger(gl_id, oldrev, newrev, ref)
-        return true unless exists?
+        return [true, []] unless exists?
 
         case name
         when "pre-receive", "post-receive"
@@ -31,6 +31,7 @@ module Gitlab
 
         # function  will return true if succesful
         exit_status = false
+        errors = []
 
         vars = {
           'GL_ID' => gl_id,
@@ -41,7 +42,8 @@ module Gitlab
           chdir: repo_path
         }
 
-        Open3.popen2(vars, path, options) do |stdin, _, wait_thr|
+
+        Open3.popen3(vars, path, options) do |stdin, _, stderr, wait_thr|
           exit_status = true
           stdin.sync = true
 
@@ -58,17 +60,20 @@ module Gitlab
 
           stdin.close
 
+
           unless wait_thr.value == 0
             exit_status = false
+            errors = stderr.readlines.map(&:strip)
           end
         end
 
-        exit_status
+        [exit_status, errors]
       end
 
       def call_update_hook(gl_id, oldrev, newrev, ref)
         Dir.chdir(repo_path) do
-          system({ 'GL_ID' => gl_id }, path, ref, oldrev, newrev)
+          _, stderr, status = Open3.capture3({ 'GL_ID' => gl_id }, path, ref, oldrev, newrev)
+          [status.success?, stderr.split("\n")]
         end
       end
     end
