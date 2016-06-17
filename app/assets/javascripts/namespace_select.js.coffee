@@ -40,7 +40,7 @@ class @NamespaceSelects
       @$dropdowns = $('.js-namespace-select')
     } = opts
 
-    @$dropdowns.each (i, dropdown) =>
+    @$dropdowns.each (i, dropdown) ->
       $dropdown = $(dropdown)
 
       new NamespaceSelect(
