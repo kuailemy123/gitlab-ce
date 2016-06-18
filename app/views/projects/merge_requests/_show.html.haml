@@ -90,6 +90,7 @@
 
 :javascript
   var merge_request;
+  gl.userCan = #{!@diff_notes_disabled && can?(current_user, :create_note, @project)};
 
   merge_request = new MergeRequest({
     action: "#{controller.action_name}"

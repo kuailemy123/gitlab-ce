@@ -24,6 +24,14 @@ module NotesHelper
     }.to_json
   end
 
+  def discussion_id(line_code)
+    LegacyDiffNote.build_discussion_id(
+      @comments_target[:noteable_type],
+      @comments_target[:noteable_id] || @comments_target[:commit_id],
+      line_code
+    )
+  end
+
   def link_to_new_diff_note(line_code, line_type = nil)
     discussion_id = LegacyDiffNote.build_discussion_id(
       @comments_target[:noteable_type],

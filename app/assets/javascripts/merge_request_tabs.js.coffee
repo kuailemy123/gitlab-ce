@@ -153,7 +153,6 @@ class @MergeRequestTabs
 
   loadDiff: (source) ->
     return if @diffsLoaded
-
     @_get
       url: "#{source}.json" + @_location.search
       success: (data) =>
@@ -164,6 +163,7 @@ class @MergeRequestTabs
         @diffsLoaded = true
         @scrollToElement("#diffs")
         @highlighSelectedLine()
+        @createCommentButton()
 
         $(document)
           .off 'click', '.diff-line-num a'
@@ -172,6 +172,40 @@ class @MergeRequestTabs
             window.location.hash = $(e.currentTarget).attr 'href'
             @highlighSelectedLine()
             @scrollToElement("#diffs")
+
+  createCommentButton: ->
+    if not gl.userCan
+      return
+    @commentButtonTemplate = '<button name="button" type="submit" class="btn add-diff-note js-add-diff-note-button" title="Add a comment to this line"><i class="fa fa-comment-o"></i></button>'
+    $firstRowCell = $('.files td:first')
+    $firstRow = $firstRowCell.closest('tr')
+    @$commentButton = $(@commentButtonTemplate)
+      .attr('data-noteable-type', 'MergeRequest')
+      .attr('data-noteable-id', $firstRow.attr('data-noteable-id'))
+      .attr('data-commit-id', null)
+      .attr('data-line-type', null)
+      .attr('data-line-code', $firstRow.attr('id'))
+      .attr('data-note-type', 'LegacyDiffNote')
+      .attr('data-discussion-id', $firstRow.attr('data-discussion-id'))
+    $('.files td:first').append(@$commentButton)
+    @$commentButton = $('.add-diff-note:first')
+    @bindCommentButtonToRow()
+
+  bindCommentButtonToRow: ->
+    self = @
+    $('#diffs')
+    .on('mouseover', '.diff-content tr', (e) ->
+      $thisRow = $(e.currentTarget)
+      self.$commentButton.appendTo($thisRow.find('td:first'))
+      self.$commentButton
+      .attr('data-noteable-type', 'MergeRequest')
+      .attr('data-noteable-id', $thisRow.attr('data-noteable-id'))
+      .attr('data-commit-id', null)
+      .attr('data-line-type', null)
+      .attr('data-line-code', $thisRow.attr('id'))
+      .attr('data-note-type', 'LegacyDiffNote')
+      .attr('data-discussion-id', $thisRow.attr('data-discussion-id'))
+    )
 
   highlighSelectedLine: ->
     $('.hll').removeClass 'hll'
