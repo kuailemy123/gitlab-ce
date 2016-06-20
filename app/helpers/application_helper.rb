@@ -306,4 +306,12 @@ module ApplicationHelper
   def truncate_first_line(message, length = 50)
     truncate(message.each_line.first.chomp, length: length) if message
   end
+
+  def conditional_link_to(condition, options, html_options = {}, &block)
+    if condition
+      link_to options, html_options, &block
+    else
+      capture &block
+    end
+  end
 end

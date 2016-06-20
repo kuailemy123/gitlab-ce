@@ -4,7 +4,8 @@ module Gitlab
       attr_reader :diff, :diff_refs, :repository
 
       delegate :new_file, :deleted_file, :renamed_file,
-        :old_path, :new_path, to: :diff, prefix: false
+        :old_path, :new_path, :a_mode, :b_mode,
+        :submodule?, :too_large?, to: :diff, prefix: false
 
       def initialize(diff, diff_refs: nil, repository: nil)
         @diff = diff
@@ -38,11 +39,7 @@ module Gitlab
       end
 
       def mode_changed?
-        !!(diff.a_mode && diff.b_mode && diff.a_mode != diff.b_mode)
-      end
-
-      def parser
-        Gitlab::Diff::Parser.new
+        !!(a_mode && b_mode && a_mode != b_mode)
       end
 
       def raw_diff
