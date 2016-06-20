@@ -22,7 +22,7 @@ describe 'Cherry-pick Merge Requests' do
     # Fast-forward merge, or merged before GitLab 8.5.
     context "Without a merge commit" do
       before do
-        merge_request.merge_commit_sha = nil
+        merge_request.merge_commit_id = nil
         merge_request.save
       end
 

@@ -437,14 +437,14 @@ describe API::API, api: true  do
     end
 
     it "returns 409 if the SHA parameter doesn't match" do
-      put api("/projects/#{project.id}/merge_requests/#{merge_request.id}/merge", user), sha: merge_request.source_sha.succ
+      put api("/projects/#{project.id}/merge_requests/#{merge_request.id}/merge", user), sha: merge_request.source_branch_sha.succ
 
       expect(response.status).to eq(409)
       expect(json_response['message']).to start_with('SHA does not match HEAD of source branch')
     end
 
     it "succeeds if the SHA parameter matches" do
-      put api("/projects/#{project.id}/merge_requests/#{merge_request.id}/merge", user), sha: merge_request.source_sha
+      put api("/projects/#{project.id}/merge_requests/#{merge_request.id}/merge", user), sha: merge_request.source_branch_sha
 
       expect(response.status).to eq(200)
     end

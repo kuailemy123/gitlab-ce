@@ -78,27 +78,27 @@ describe MergeRequest, models: true do
     end
   end
 
-  describe '#source_sha' do
+  describe '#source_branch_sha' do
     let(:last_branch_commit) { subject.source_project.repository.commit(subject.source_branch) }
 
     context 'with diffs' do
       subject { create(:merge_request, :with_diffs) }
       it 'returns the sha of the source branch last commit' do
-        expect(subject.source_sha).to eq(last_branch_commit.sha)
+        expect(subject.source_branch_sha).to eq(last_branch_commit.sha)
       end
     end
 
     context 'without diffs' do
       subject { create(:merge_request, :without_diffs) }
       it 'returns the sha of the source branch last commit' do
-        expect(subject.source_sha).to eq(last_branch_commit.sha)
+        expect(subject.source_branch_sha).to eq(last_branch_commit.sha)
       end
     end
 
     context 'when the merge request is being created' do
       subject { build(:merge_request, source_branch: nil, compare_commits: []) }
       it 'returns nil' do
-        expect(subject.source_sha).to be_nil
+        expect(subject.source_branch_sha).to be_nil
       end
     end
   end
@@ -252,7 +252,7 @@ describe MergeRequest, models: true do
     end
 
     it "can be removed if the last commit is the head of the source branch" do
-      allow(subject.source_project).to receive(:commit).and_return(subject.last_commit)
+      allow(subject.source_project).to receive(:commit).and_return(subject.diff_head_commit)
 
       expect(subject.can_remove_source_branch?(user)).to be_truthy
     end
@@ -363,7 +363,7 @@ describe MergeRequest, models: true do
           and_return(2)
 
         subject.diverged_commits_count
-        allow(subject).to receive(:source_sha).and_return('123abc')
+        allow(subject).to receive(:source_branch_sha).and_return('123abc')
         subject.diverged_commits_count
       end
 
