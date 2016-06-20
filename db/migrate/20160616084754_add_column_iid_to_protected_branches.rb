@@ -15,7 +15,33 @@ class AddColumnIidToProtectedBranches < ActiveRecord::Migration
   # comments:
   # disable_ddl_transaction!
 
-  def change
+  def up
     add_column :protected_branches, :iid, :integer
+    populate_iids_for_existing_protected_branches
+  end
+
+  def down
+    remove_column :protected_branches, :iid, :integer
+  end
+
+  protected
+
+  def populate_iids_for_existing_protected_branches
+    max_iid_by_project_id = Hash.new(1)
+    ProtectedBranch.all.each do |protected_branch|
+      iid = max_iid_by_project_id[protected_branch.project_id]
+      protected_branch.update(iid: iid)
+      max_iid_by_project_id[protected_branch.project_id] = iid + 1
+    end
+
+    blank_iids = ProtectedBranch.find_by_sql("select iid from protected_branches WHERE iid IS NULL")
+    if blank_iids.count > 0
+      raise "Something went wrong with the 'add_column_iid_to_protected_branches' migration. We shouldn't have any blank iids."
+    end
+
+    duplicate_iids = ProtectedBranch.find_by_sql("select project_id, iid from protected_branches GROUP BY project_id, iid HAVING COUNT(*) > 1")
+    if duplicate_iids.count > 0
+      raise "Something went wrong with the 'add_column_iid_to_protected_branches' migration. We shouldn't have more than one unique [iid, project_id] combination."
+    end
   end
 end
