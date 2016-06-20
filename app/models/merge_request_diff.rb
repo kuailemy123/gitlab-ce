@@ -144,6 +144,8 @@ class MergeRequestDiff < ActiveRecord::Base
     self.st_diffs = new_diffs
 
     self.base_commit_sha = self.repository.merge_base(self.head, self.base)
+    self.start_commit_id = self.target_branch_sha
+    self.head_commit_id = self.source_branch_sha
 
     self.save
   end
