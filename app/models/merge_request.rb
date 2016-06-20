@@ -279,7 +279,9 @@ class MergeRequest < ActiveRecord::Base
   end
 
   def reload_code
-    if merge_request_diff && open?
+    return unless merge_request_diff && open?
+
+    update_diff_notes_positions do
       merge_request_diff.reload_content
     end
   end
@@ -637,5 +639,32 @@ class MergeRequest < ActiveRecord::Base
 
   def support_new_diff_notes?
     diff_refs && diff_refs.complete?
+  end
+
+  def update_diff_notes_positions
+    return yield unless support_new_diff_notes?
+
+    old_diff_refs = self.diff_refs
+
+    yield
+
+    active_diff_notes = self.notes.diff_notes.select { |note| note.new_diff_note? && note.active?(old_diff_refs) }
+
+    return if active_diff_notes.empty?
+
+    paths = active_diff_notes.flat_map { |n| n.diff_file.paths }
+
+    service = Notes::DiffPositionUpdateService.new(
+      self.project,
+      nil,
+      old_diff_refs: old_diff_refs,
+      new_diff_refs: self.diff_refs,
+      paths: paths
+    )
+
+    active_diff_notes.each do |note|
+      service.execute(note)
+      Gitlab::Timeless.timeless(note, &:save)
+    end
   end
 end
