@@ -82,6 +82,7 @@ class Projects::MergeRequestsController < Projects::ApplicationController
       noteable_id: @merge_request.id
     }
 
+    @use_legacy_diff_notes = !@merge_request.support_new_diff_notes?
     @grouped_diff_notes = @merge_request.notes.grouped_diff_notes
 
     respond_to do |format|
