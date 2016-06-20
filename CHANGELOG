@@ -32,6 +32,7 @@ v 8.9.0 (unreleased)
   - Remove project notification settings associated with deleted projects
   - Fix 404 page when viewing TODOs that contain milestones or labels in different projects
   - Add a metric for the number of new Redis connections created by a transaction
+  - Wildcards for protected branches. !4665
   - Fix Error 500 when viewing a blob with binary characters after the 1024-byte mark
   - Redesign navigation for project pages
   - Fix images in sign-up confirmation email
