@@ -13,6 +13,20 @@ module Gitlab
         @repository = repository
       end
 
+      def position(line)
+        return unless diff_refs
+
+        Position.new(
+          old_path: old_path,
+          new_path: new_path,
+          old_line: line.old_line,
+          new_line: line.new_line,
+          base_id: diff_refs.base_id,
+          start_id: diff_refs.start_id,
+          head_id: diff_refs.head_id
+        )
+      end
+
       def line_code(line)
         return if line.meta?
 
@@ -21,6 +35,20 @@ module Gitlab
 
       def line_for_line_code(code)
         diff_lines.find { |line| line_code(line) == code }
+      end
+
+      def line_for_position(pos)
+        diff_lines.find { |line| position(line).key == pos.key }
+      end
+
+      def position_for_line_code(code)
+        line = line_for_line_code(code)
+        position(line) if line
+      end
+
+      def line_code_for_position(pos)
+        line = line_for_position(pos)
+        line_code(line) if line
       end
 
       def content_commit
@@ -64,6 +92,10 @@ module Gitlab
         if index > 0
           diff_lines[index - 1]
         end
+      end
+
+      def paths
+        [old_path, new_path].compact
       end
 
       def file_path
