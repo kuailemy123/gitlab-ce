@@ -134,6 +134,7 @@ class ApplicationSetting < ActiveRecord::Base
       disabled_oauth_sign_in_sources: [],
       send_user_confirmation_email: false,
       container_registry_token_expire_delay: 5,
+      repository_storage: 'default',
     )
   end
 
