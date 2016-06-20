@@ -9,7 +9,7 @@ describe Gitlab::Diff::ParallelDiff, lib: true do
   let(:diffs) { commit.diffs }
   let(:diff) { diffs.first }
   let(:diff_refs) { [commit.parent, commit] }
-  let(:diff_file) { Gitlab::Diff::File.new(diff, diff_refs) }
+  let(:diff_file) { Gitlab::Diff::File.new(diff, diff_refs: diff_refs) }
   subject { described_class.new(diff_file) }
 
   let(:parallel_diff_result_array) { YAML.load_file("#{Rails.root}/spec/fixtures/parallel_diff_result.yml") }

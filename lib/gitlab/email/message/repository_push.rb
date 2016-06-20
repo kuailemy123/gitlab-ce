@@ -37,7 +37,7 @@ module Gitlab
         end
 
         def diffs
-          @diffs ||= (safe_diff_files(compare.diffs(max_files: 30), diff_refs) if compare)
+          @diffs ||= (safe_diff_files(compare.diffs(max_files: 30), diff_refs: diff_refs, repository: project.repository) if compare)
         end
 
         def diffs_count
