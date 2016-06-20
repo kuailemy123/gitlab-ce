@@ -4,7 +4,7 @@ class ProjectsController < Projects::ApplicationController
   before_action :authenticate_user!, except: [:show, :activity, :refs]
   before_action :project, except: [:new, :create]
   before_action :repository, except: [:new, :create]
-  before_action :assign_ref_vars, :tree, only: [:show], if: :repo_exists?
+  before_action :assign_ref_vars, only: [:show], if: :repo_exists?
 
   # Authorize
   before_action :authorize_admin_project!, only: [:edit, :update, :housekeeping, :download_export, :export, :remove_export, :generate_new_export]
