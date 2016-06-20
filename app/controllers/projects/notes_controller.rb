@@ -118,7 +118,7 @@ class Projects::NotesController < Projects::ApplicationController
         name:   note.name
       }
     elsif note.valid?
-      {
+      attrs = {
         valid: true,
         id: note.id,
         discussion_id: note.discussion_id,
@@ -128,6 +128,12 @@ class Projects::NotesController < Projects::ApplicationController
         discussion_html: note_to_discussion_html(note),
         discussion_with_diff_html: note_to_discussion_with_diff_html(note)
       }
+
+      if note.new_diff_note? && note.position != note.original_position
+        attrs[:original_discussion_id] = note.original_discussion_id
+      end
+
+      attrs
     else
       {
         valid: false,
@@ -144,7 +150,7 @@ class Projects::NotesController < Projects::ApplicationController
   def note_params
     params.require(:note).permit(
       :note, :noteable, :noteable_id, :noteable_type, :project_id,
-      :attachment, :line_code, :commit_id, :type
+      :attachment, :line_code, :commit_id, :type, :position
     )
   end
 

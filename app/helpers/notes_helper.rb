@@ -24,22 +24,45 @@ module NotesHelper
     }.to_json
   end
 
-  def link_to_new_diff_note(line_code, line_type = nil)
-    discussion_id = LegacyDiffNote.build_discussion_id(
-      @comments_target[:noteable_type],
-      @comments_target[:noteable_id] || @comments_target[:commit_id],
-      line_code
-    )
+  def link_to_new_diff_note(line_code, position, line_type = nil)
+    use_legacy_diff_note = @use_legacy_diff_notes
+    use_legacy_diff_note ||= begin
+      line_diff_notes = @grouped_diff_notes[line_code]
+      line_diff_notes && line_diff_notes.any?(&:legacy_diff_note?)
+    end
 
     data = {
       noteable_type: @comments_target[:noteable_type],
       noteable_id:   @comments_target[:noteable_id],
       commit_id:     @comments_target[:commit_id],
-      line_type:     line_type,
-      line_code:     line_code,
-      note_type:     LegacyDiffNote.name,
-      discussion_id: discussion_id
+      line_type:     line_type
     }
+
+    if use_legacy_diff_note
+      discussion_id = LegacyDiffNote.build_discussion_id(
+        @comments_target[:noteable_type],
+        @comments_target[:noteable_id] || @comments_target[:commit_id],
+        line_code
+      )
+
+      data.merge!(
+        line_code: line_code,
+        note_type: LegacyDiffNote.name,
+        discussion_id: discussion_id
+      )
+    else
+      discussion_id = DiffNote.build_discussion_id(
+        @comments_target[:noteable_type],
+        @comments_target[:noteable_id] || @comments_target[:commit_id],
+        position
+      )
+
+      data.merge!(
+        position: position.to_json,
+        note_type: DiffNote.name,
+        discussion_id: discussion_id
+      )
+    end
 
     button_tag(class: 'btn add-diff-note js-add-diff-note-button',
                data: data,
@@ -65,8 +88,10 @@ module NotesHelper
       data.merge!(note.diff_attributes)
     end
 
-    button_tag 'Reply...', class: 'btn btn-text-field js-discussion-reply-button',
-                           data: data, title: 'Add a reply'
+    content_tag(:div, class: "discussion-reply-holder") do
+      button_tag 'Reply...', class: 'btn btn-text-field js-discussion-reply-button',
+                             data: data, title: 'Add a reply'
+    end
   end
 
   def diff_note_path(note)
