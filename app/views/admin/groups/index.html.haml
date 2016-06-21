@@ -14,7 +14,7 @@
             = search_field_tag :name, name, class: "form-control search-text-input js-search-input", id: "dashboard_search", autofocus: true, spellcheck: false, placeholder: 'Search by name'
             = icon("search", class: "search-icon")
           .dropdown
-            - toggle_text = if @sort.present? then sort_options_hash[@sort] else sort_title_recently_created end
+            - toggle_text = @sort.present? ? sort_options_hash[@sort] : sort_title_recently_created
             = dropdown_toggle(toggle_text, { toggle: 'dropdown' })
             %ul.dropdown-menu.dropdown-menu-align-right
               %li.dropdown-header
