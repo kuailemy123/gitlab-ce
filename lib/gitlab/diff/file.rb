@@ -7,7 +7,7 @@ module Gitlab
         :old_path, :new_path, :a_mode, :b_mode,
         :submodule?, :too_large?, to: :diff, prefix: false
 
-      def initialize(diff, diff_refs: nil, repository: nil)
+      def initialize(diff, diff_refs: nil, repository:)
         @diff = diff
         @diff_refs = diff_refs
         @repository = repository

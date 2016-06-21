@@ -71,10 +71,6 @@ class LegacyDiffNote < Note
     @active
   end
 
-  def award_emoji_supported?
-    false
-  end
-
   private
 
   def find_diff

@@ -62,7 +62,7 @@ describe MergeRequest, models: true do
     end
   end
 
-  describe '#target_sha' do
+  describe '#target_branch_sha' do
     context 'when the target branch does not exist anymore' do
       let(:project) { create(:project) }
 
@@ -73,7 +73,7 @@ describe MergeRequest, models: true do
       end
 
       it 'returns nil' do
-        expect(subject.target_sha).to be_nil
+        expect(subject.target_branch_sha).to be_nil
       end
     end
   end
@@ -373,7 +373,7 @@ describe MergeRequest, models: true do
           and_return(2)
 
         subject.diverged_commits_count
-        allow(subject).to receive(:target_sha).and_return('123abc')
+        allow(subject).to receive(:target_branch_sha).and_return('123abc')
         subject.diverged_commits_count
       end
     end

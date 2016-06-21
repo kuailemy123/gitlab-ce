@@ -20,6 +20,10 @@ module NoteOnDiff
     raise NotImplementedError
   end
 
+  def can_be_award_emoji?
+    false
+  end
+
   def blob
     diff_file.try(:blob)
   end
