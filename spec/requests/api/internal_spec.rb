@@ -72,6 +72,7 @@ describe API::API, api: true  do
 
           expect(response.status).to eq(200)
           expect(json_response["status"]).to be_truthy
+          expect(json_response["repository_path"]).to eq(project.repository.path_to_repo)
         end
       end
 
@@ -81,6 +82,7 @@ describe API::API, api: true  do
 
           expect(response.status).to eq(200)
           expect(json_response["status"]).to be_truthy
+          expect(json_response["repository_path"]).to eq(project.repository.path_to_repo)
         end
       end
     end
@@ -204,6 +206,24 @@ describe API::API, api: true  do
         expect(response.status).to eq(200)
         expect(json_response["status"]).to be_falsey
       end
+    end
+  end
+
+  describe "GET /internal/repository_storage_paths" do
+    before do
+      storages = {
+        'default' => 'tmp/tests/default_storage',
+        'custom' => 'tmp/tests/custom_storage'
+      }
+      allow(Gitlab.config.repositories).to receive(:storages).and_return(storages)
+    end
+
+    it do
+      get api("/internal/repository_storage_paths"), secret_token: secret_token
+
+      expect(response.status).to eq(200)
+      expect(json_response).to be_kind_of(Array)
+      expect(json_response).to eq(['tmp/tests/default_storage', 'tmp/tests/custom_storage'])
     end
   end
 
