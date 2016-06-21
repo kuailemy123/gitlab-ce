@@ -55,7 +55,8 @@ class ApplicationSetting < ActiveRecord::Base
             presence: true,
             numericality: { only_integer: true, greater_than: 0 }
 
-  validates_inclusion_of :enabled_git_access_protocols, in: %w(ssh http), allow_blank: true, allow_nil: true
+  validates :enabled_git_access_protocols,
+            inclusion: { in: %w(ssh http), allow_blank: true, allow_nil: true }
 
   validates_each :restricted_visibility_levels do |record, attr, value|
     unless value.nil?

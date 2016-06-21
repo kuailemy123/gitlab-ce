@@ -30,7 +30,7 @@ module ButtonHelper
       type: :button
   end
 
-  def http_clone_button(project)
+  def http_clone_button(project, placement = 'right')
     klass = 'http-selector'
     klass << ' has-tooltip' if current_user.try(:require_password?)
 
@@ -41,13 +41,13 @@ module ButtonHelper
       href: project.http_url_to_repo,
       data: {
         html: true,
-        placement: 'right',
+        placement: placement,
         container: 'body',
         title: "Set a password on your account<br>to pull or push via #{protocol}"
       }
   end
 
-  def ssh_clone_button(project)
+  def ssh_clone_button(project, placement = 'right')
     klass = 'ssh-selector'
     klass << ' has-tooltip' if current_user.try(:require_ssh_key?)
 
@@ -56,7 +56,7 @@ module ButtonHelper
       href: project.ssh_url_to_repo,
       data: {
         html: true,
-        placement: 'right',
+        placement: placement,
         container: 'body',
         title: 'Add an SSH key to your profile<br>to pull or push via SSH.'
       }

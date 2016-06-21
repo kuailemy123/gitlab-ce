@@ -13,6 +13,7 @@ module API
       #   action - git action (git-upload-pack or git-receive-pack)
       #   ref - branch name
       #   forced_push - forced_push
+      #   protocol - Git access protocol being used, e.g. HTTP or SSH
       #
 
       helpers do
@@ -26,6 +27,7 @@ module API
         Gitlab::Metrics.action = 'Grape#/internal/allowed'
 
         status 200
+        API.logger.info "Params: #{params}"
 
         actor =
           if params[:key_id]
@@ -33,6 +35,8 @@ module API
           elsif params[:user_id]
             User.find_by(id: params[:user_id])
           end
+
+        protocol = params[:protocol]
 
         project_path = params[:project]
 
@@ -46,9 +50,9 @@ module API
 
         access =
           if wiki?
-            Gitlab::GitAccessWiki.new(actor, project)
+            Gitlab::GitAccessWiki.new(actor, project, protocol)
           else
-            Gitlab::GitAccess.new(actor, project)
+            Gitlab::GitAccess.new(actor, project, protocol)
           end
 
         access.check(params[:action], params[:changes])
