@@ -29,7 +29,6 @@
                 = link_to admin_groups_path(sort: sort_value_oldest_updated, name: project_name) do
                   = sort_title_oldest_updated
           = link_to new_admin_group_path, class: "btn btn-new" do
-            = icon('plus')
             New Group
   %ul.content-list
     - @groups.each do |group|
