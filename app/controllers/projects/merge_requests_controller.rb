@@ -85,6 +85,13 @@ class Projects::MergeRequestsController < Projects::ApplicationController
 
     @grouped_diff_notes = @merge_request.notes.grouped_diff_notes
 
+    Banzai::NoteRenderer.render(@grouped_diff_notes.values.flatten,
+                                @project,
+                                current_user,
+                                @path,
+                                @project_wiki,
+                                @ref)
+
     respond_to do |format|
       format.html
       format.json { render json: { html: view_to_html_string("projects/merge_requests/show/_diffs") } }
@@ -204,7 +211,7 @@ class Projects::MergeRequestsController < Projects::ApplicationController
 
     @merge_request.update(merge_error: nil)
 
-    if params[:merge_when_build_succeeds].present? 
+    if params[:merge_when_build_succeeds].present?
       if @merge_request.pipeline && @merge_request.pipeline.active?
         MergeRequests::MergeWhenBuildSucceedsService.new(@project, current_user, merge_params)
                                                         .execute(@merge_request)
@@ -320,8 +327,17 @@ class Projects::MergeRequestsController < Projects::ApplicationController
   def define_show_vars
     # Build a note object for comment form
     @note = @project.notes.new(noteable: @merge_request)
-    @notes = @merge_request.mr_and_commit_notes.inc_author.fresh
-    @discussions = @notes.discussions
+
+    @discussions = @merge_request.mr_and_commit_notes.inc_author.fresh.
+      discussions
+
+    @notes = Banzai::NoteRenderer.render(@discussions.flatten,
+                                         @project,
+                                         current_user,
+                                         @path,
+                                         @project_wiki,
+                                         @ref)
+
     @noteable = @merge_request
 
     # Get commits from repository
