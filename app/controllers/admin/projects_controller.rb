@@ -10,7 +10,7 @@ class Admin::ProjectsController < Admin::ApplicationController
     @projects = @projects.abandoned if params[:abandoned].present?
     @projects = @projects.where(last_repository_check_failed: true) if params[:last_repository_check_failed].present?
     @projects = @projects.non_archived unless params[:archived].present?
-    @projects = @projects.personal(current_user) if params[:personal].present? && current_user
+    @projects = @projects.personal(current_user) if params[:personal].present?
     @projects = @projects.search(params[:name]) if params[:name].present?
     @projects = @projects.sort(@sort = params[:sort])
     @projects = @projects.includes(:namespace).order("namespaces.path, projects.name ASC").page(params[:page])
