@@ -916,7 +916,7 @@ class Project < ActiveRecord::Base
   end
 
   def project_member(user)
-    project_members.find_by(user_id: user)
+    members.find_by(user_id: user)
   end
 
   def default_branch

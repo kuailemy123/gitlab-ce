@@ -254,11 +254,24 @@ OWNER     = 50
 
 ### List group members
 
-Get a list of group members viewable by the authenticated user.
+Gets a list of group members viewable by the authenticated user.
+
+- Returns `200` if the request succeeds.
 
 ```
 GET /groups/:id/members
+GET /groups/:id/members?type=request
 ```
+
+| Attribute | Type | Required | Description |
+| --------- | ---- | -------- | ----------- |
+| `type`    | string | no     | Return all members or just those that are access requesters, using `request` |
+
+```bash
+curl -H "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" https://gitlab.example.com/api/v3/groups/:id/members
+```
+
+Example response:
 
 ```json
 [
@@ -268,7 +281,8 @@ GET /groups/:id/members
     "name": "Raymond Smith",
     "state": "active",
     "created_at": "2012-10-22T14:13:35Z",
-    "access_level": 30
+    "access_level": 30,
+    "requested_at": null
   },
   {
     "id": 2,
@@ -276,51 +290,203 @@ GET /groups/:id/members
     "name": "John Doe",
     "state": "active",
     "created_at": "2012-10-22T14:13:35Z",
-    "access_level": 30
+    "access_level": 30,
+    "requested_at": "2012-10-22T14:13:35Z"
   }
 ]
+```
+
+### Get group member
+
+Gets a group member.
+
+- Returns `200` if the request succeeds.
+- Returns `404` if the member cannot be found.
+
+```
+GET /groups/:id/members/:user_id
+```
+
+| Attribute | Type | Required | Description |
+| --------- | ---- | -------- | ----------- |
+| `id`      | integer | yes   | The ID or path of a group |
+| `user_id` | integer | yes   | The ID of a user |
+
+```bash
+curl -H "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" https://gitlab.example.com/api/v3/groups/:id/members/:user_id
+```
+
+```json
+{
+  "id": 1,
+  "username": "raymond_smith",
+  "name": "Raymond Smith",
+  "state": "active",
+  "created_at": "2012-10-22T14:13:35Z",
+  "access_level": 30,
+  "requested_at": null
+}
 ```
 
 ### Add group member
 
 Adds a user to the list of group members.
 
+- Returns `201` if the request succeeds.
+- Returns `403` if the authenticated user cannot create the member.
+- Returns `409` if given user is already a group member.
+- Returns `422` if given access level is not acceptable.
+
 ```
 POST /groups/:id/members
 ```
 
-Parameters:
+| Attribute | Type | Required | Description |
+| --------- | ---- | -------- | ----------- |
+| `id`      | integer | yes   | The ID or path of a group |
+| `user_id` | integer | yes   | The ID of a user |
+| `access_level` | integer | yes | An access level |
 
-- `id` (required) - The ID or path of a group
-- `user_id` (required) - The ID of a user to add
-- `access_level` (required) - Project access level
+```bash
+curl -X POST -H "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" https://gitlab.example.com/api/v3/groups/:id/members/:user_id?access_level=30
+```
 
-### Edit group team member
+```json
+{
+  "id": 1,
+  "username": "raymond_smith",
+  "name": "Raymond Smith",
+  "state": "active",
+  "created_at": "2012-10-22T14:13:35Z",
+  "access_level": 30,
+  "requested_at": null
+}
+```
 
-Updates a group team member to a specified access level.
+### Edit group member
+
+Updates a group member.
+
+- Returns `200` if the request succeeds.
+- Returns `400` if the updated member is not valid.
+- Returns `403` if the authenticated user cannot update the member.
+- Returns `404` if the member cannot be found.
+- Returns `422` if given access level is not acceptable.
 
 ```
 PUT /groups/:id/members/:user_id
 ```
 
-Parameters:
+| Attribute | Type | Required | Description |
+| --------- | ---- | -------- | ----------- |
+| `id`      | integer | yes   | The ID or path of a group |
+| `user_id` | integer | yes   | The ID of a user |
+| `access_level` | integer | yes | An access level |
 
-- `id` (required) - The ID of a group
-- `user_id` (required) - The ID of a group member
-- `access_level` (required) - Project access level
+```bash
+curl -X PUT -H "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" https://gitlab.example.com/api/v3/groups/:id/members/:user_id?access_level=40
+```
 
-### Remove user team member
+```json
+{
+  "id": 1,
+  "username": "raymond_smith",
+  "name": "Raymond Smith",
+  "state": "active",
+  "created_at": "2012-10-22T14:13:35Z",
+  "access_level": 40,
+  "requested_at": null
+}
+```
 
-Removes user from user team.
+### Remove group member
+
+Removes user from group members.
+
+- Returns `200` if the request succeeds.
+- Returns `403` if the authenticated user cannot remove the member.
+- Returns `404` if the member cannot be found.
 
 ```
 DELETE /groups/:id/members/:user_id
 ```
 
-Parameters:
+| Attribute | Type | Required | Description |
+| --------- | ---- | -------- | ----------- |
+| `id`      | integer | yes   | The ID or path of a group |
+| `user_id` | integer | yes   | The ID of a user |
 
-- `id` (required) - The ID or path of a user group
-- `user_id` (required) - The ID of a group member
+```bash
+curl -X DELETE -H "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" https://gitlab.example.com/api/v3/groups/:id/members/:user_id
+```
+
+### Request access to a group
+
+Requests access for the authenticated user to a group.
+
+- Returns `201` if the request succeeds.
+- Returns `400` if the request does not succeed.
+- Returns `409` if given user is already a group member.
+
+```
+POST /groups/:id/members/request_access
+```
+
+| Attribute | Type | Required | Description |
+| --------- | ---- | -------- | ----------- |
+| `id`      | integer | yes   | The ID or path of a group |
+
+```bash
+curl -X POST -H "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" https://gitlab.example.com/api/v3/groups/:id/members/request_access
+```
+
+```json
+{
+  "id": 1,
+  "username": "raymond_smith",
+  "name": "Raymond Smith",
+  "state": "active",
+  "created_at": "2012-10-22T14:13:35Z",
+  "access_level": 30,
+  "requested_at": "2012-10-22T14:13:35Z"
+}
+```
+
+### Approve access request to a group
+
+Approve an access request for the given user to a group.
+
+- Returns `201` if the request succeeds.
+- Returns `400` if the request does not succeed.
+- Returns `404` if the requester cannot be found or the current user is not
+  allowed to approve access requests.
+- Returns `422` if given access level is not acceptable.
+
+```
+PUT /groups/:id/members/:user_id/approve_access_request
+```
+
+| Attribute | Type | Required | Description |
+| --------- | ---- | -------- | ----------- |
+| `id`      | integer | yes   | The ID or path of a group |
+| `user_id` | integer | yes   | The ID of a user |
+| `access_level` | integer | no | An access level |
+
+```bash
+curl -X PUT -H "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" https://gitlab.example.com/api/v3/groups/:id/members/:user_id/approve_access_request?access_level=20
+```
+
+```json
+{
+  "id": 1,
+  "username": "raymond_smith",
+  "name": "Raymond Smith",
+  "state": "active",
+  "created_at": "2012-10-22T14:13:35Z",
+  "access_level": 20,
+  "requested_at": null
+}
+```
 
 ## Namespaces in groups
 

@@ -1,11 +1,9 @@
 module API
-  # Projects members API
   class ProjectMembers < Grape::API
     before { authenticate! }
 
     resource :projects do
-
-      # Get a project team members
+      # Get a list of project members viewable by the authenticated user.
       #
       # Parameters:
       #   id (required) - The ID of a project
@@ -13,15 +11,15 @@ module API
       # Example Request:
       #   GET /projects/:id/members
       get ":id/members" do
-        if params[:query].present?
-          @members = paginate user_project.users.where("username LIKE ?", "%#{params[:query]}%")
-        else
-          @members = paginate user_project.users
-        end
-        present @members, with: Entities::ProjectMember, project: user_project
+        members = user_project.members
+        members = members.non_request unless can?(current_user, :admin_project, user_project)
+        members = members.joins(:user).merge(User.search(params[:query])) if params[:query]
+        users = Kaminari.paginate_array(members.map(&:user))
+
+        present paginate(users), with: Entities::Member, source: user_project
       end
 
-      # Get a project team members
+      # Get a project member
       #
       # Parameters:
       #   id (required) - The ID of a project
@@ -29,15 +27,18 @@ module API
       # Example Request:
       #   GET /projects/:id/members/:user_id
       get ":id/members/:user_id" do
-        @member = user_project.users.find params[:user_id]
-        present @member, with: Entities::ProjectMember, project: user_project
+        members = user_project.members
+        members = members.non_request unless can?(current_user, :admin_project, user_project)
+        member = members.find_by!(user_id: params[:user_id])
+
+        present member, with: Entities::Member, member: member
       end
 
       # Add a new project team member
       #
       # Parameters:
       #   id (required) - The ID of a project
-      #   user_id (required) - The ID of a user
+      #   user_id (required) - The user ID
       #   access_level (required) - Project access level
       # Example Request:
       #   POST /projects/:id/members
@@ -46,64 +47,58 @@ module API
         required_attributes! [:user_id, :access_level]
 
         # either the user is already a team member or a new one
-        project_member = user_project.project_member(params[:user_id])
-        if project_member.nil?
-          project_member = user_project.project_members.new(
+        member = user_project.members.find_by(user_id: params[:user_id])
+        unless member
+          member = user_project.members.new(
             user_id: params[:user_id],
             access_level: params[:access_level]
           )
         end
 
-        if project_member.save
-          @member = project_member.user
-          present @member, with: Entities::ProjectMember, project: user_project
+        if member.save
+          present member.user, with: Entities::Member, member: member
         else
-          handle_member_errors project_member.errors
+          render_validation_error!(member)
         end
       end
 
-      # Update project team member
+      # Update a project member
       #
       # Parameters:
       #   id (required) - The ID of a project
-      #   user_id (required) - The ID of a team member
+      #   user_id (required) - The user ID of a project member
       #   access_level (required) - Project access level
       # Example Request:
       #   PUT /projects/:id/members/:user_id
       put ":id/members/:user_id" do
         authorize! :admin_project, user_project
-        required_attributes! [:access_level]
+        required_attributes! [:user_id, :access_level]
 
-        project_member = user_project.project_members.find_by(user_id: params[:user_id])
-        not_found!("User can not be found") if project_member.nil?
+        member = user_project.members.find_by(user_id: params[:user_id])
+        not_found! unless member
 
-        if project_member.update_attributes(access_level: params[:access_level])
-          @member = project_member.user
-          present @member, with: Entities::ProjectMember, project: user_project
+        if member.update_attributes(access_level: params[:access_level])
+          present member.user, with: Entities::Member, member: member
         else
-          handle_member_errors project_member.errors
+          render_validation_error!(member)
         end
       end
 
-      # Remove a team member from project
+      # Remove a project member
       #
       # Parameters:
       #   id (required) - The ID of a project
-      #   user_id (required) - The ID of a team member
+      #   user_id (required) - The user ID of a project member
       # Example Request:
       #   DELETE /projects/:id/members/:user_id
       delete ":id/members/:user_id" do
-        project_member = user_project.project_members.find_by(user_id: params[:user_id])
+        member = user_project.members.find_by(user_id: params[:user_id])
+        authorize! :destroy_project_member, member
 
-        unless current_user.can?(:admin_project, user_project) ||
-                current_user.can?(:destroy_project_member, project_member)
-          forbidden!
-        end
-
-        if project_member.nil?
-          { message: "Access revoked", id: params[:user_id].to_i }
-        else
+        if project_member
           project_member.destroy
+        else
+          not_found!
         end
       end
     end

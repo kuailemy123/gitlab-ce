@@ -132,7 +132,7 @@ module API
     end
 
     def authorize!(action, subject)
-      forbidden! unless abilities.allowed?(current_user, action, subject)
+      forbidden! unless can?(current_user, action, subject)
     end
 
     def authorize_push_project
@@ -192,10 +192,6 @@ module API
       end
 
       errors
-    end
-
-    def validate_access_level?(level)
-      Gitlab::Access.options_with_owner.values.include? level.to_i
     end
 
     # Checks the occurrences of datetime attributes, each attribute if present in the params hash must be in ISO 8601
@@ -406,11 +402,6 @@ module API
 
     def secret_token
       File.read(Gitlab.config.gitlab_shell.secret_file).chomp
-    end
-
-    def handle_member_errors(errors)
-      error!(errors[:access_level], 422) if errors[:access_level].any?
-      not_found!(errors)
     end
 
     def send_git_blob(repository, blob)
